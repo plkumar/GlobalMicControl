@@ -73,6 +73,7 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	CTrayDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_HOTKEY_MICTOGGLE, hkcMicToggle);
 	DDX_Control(pDX, IDC_LABEL_SELECTED_DEVICE, lblSelectedDevice);
+	DDX_Control(pDX, IDC_CHECK_RUNATLOGIN, chkRunAtLogin);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
@@ -154,9 +155,13 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	this->SendMessage(WM_SETHOTKEY, wKeyAndShift);*/
 
 	WORD vk=NULL, modifiers=NULL;
+	WORD runAtLogin = NULL;
 	if (ReadRegWordValue(L"VirtualKey", vk) && ReadRegWordValue(L"ModifierKey", modifiers))
 	{
 		hkcMicToggle.SetHotKey(vk, modifiers);
+	}
+	if (ReadRegWordValue(L"RunAtLogin", runAtLogin)) {
+		chkRunAtLogin.SetCheck(runAtLogin);
 	}
 
 	auto defaultDevice = micControl->GetDefaultDeviceName();
@@ -260,10 +265,6 @@ void CGlobalMicControlDlg::OnClickedBtnMicToggleReset()
 
 void CGlobalMicControlDlg::OnBnClickedOk()
 {
-	// TODO: Add your control notification handler code here
-	//WORD wKeyAndShift = static_cast<WORD>(hkcMicToggle.GetHotKey());
-	//auto result = this->SendMessage(WM_SETHOTKEY, wKeyAndShift);
-	//ASSERT(RegisterHotKey(this->m_hWnd, 100, MOD_ALT| MOD_SHIFT | MOD_NOREPEAT, 'M')==TRUE);
 	WORD vk, modifiers;
 	hkcMicToggle.GetHotKey(vk, modifiers);
 	if (RegisterHotKey(this->m_hWnd, ID_HOTKEY, modifiers, vk) != TRUE)
@@ -273,9 +274,14 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 	else {
 		WriteRegWordValue(L"VirtualKey", vk);
 		WriteRegWordValue(L"ModifierKey", modifiers);
+		WriteRegWordValue(L"RunAtLogin", chkRunAtLogin.GetCheck());
+		if (chkRunAtLogin.GetCheck() != 0)
+		{
+			WriteRegStringValueWithKey(L"GlobalMicControl", GetAppFullPath(), keyRunAtLogin);
+		}
 		this->ShowWindow(SW_HIDE);
 	}
-		
+
 	//CTrayDialog::OnOK();
 }
 
@@ -290,18 +296,24 @@ void CGlobalMicControlDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 		CTrayDialog::OnHotKey(nHotKeyId, nKey1, nKey2);
 }
 
-bool CGlobalMicControlDlg::WriteRegStringValue(const LPTSTR valueName, CString& value) const
+bool CGlobalMicControlDlg::WriteRegStringValueWithKey(const LPTSTR valueName, CString& value, const LPCTSTR keyName) const
 {
 	ATL::CRegKey regKey;
-	if (ERROR_SUCCESS != regKey.Open(key_, keyName_, KEY_WRITE)) {
-		if (ERROR_SUCCESS != regKey.Create(key_, keyName_))
+	if (ERROR_SUCCESS != regKey.Open(key_, keyName, KEY_WRITE)) {
+		if (ERROR_SUCCESS != regKey.Create(key_, keyName))
 		{
 			regKey.Close();
 			return false;
 		}
 	}
 
-	return (ERROR_SUCCESS == regKey.Create(key_, keyName_, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetStringValue(valueName, value);
+	return (ERROR_SUCCESS == regKey.Create(key_, keyName, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetStringValue(valueName, value);
+	return false;
+}
+
+bool CGlobalMicControlDlg::WriteRegStringValue(const LPTSTR valueName, CString& value) const
+{
+	return WriteRegStringValueWithKey(valueName, value, keyAppDefault);
 }
 
 bool CGlobalMicControlDlg::ReadRegStringValue(const LPTSTR valueName, CString& strDest) const
@@ -310,7 +322,7 @@ bool CGlobalMicControlDlg::ReadRegStringValue(const LPTSTR valueName, CString& s
 	int nError = ERROR_SUCCESS;
 	TCHAR szStringValue[LF_FACESIZE] = { 0 };
 	ULONG cchMaxLen = _countof(szStringValue);
-	if (ERROR_SUCCESS == regKey.Open(key_, keyName_, KEY_READ | KEY_QUERY_VALUE)) {
+	if (ERROR_SUCCESS == regKey.Open(key_, keyAppDefault, KEY_READ | KEY_QUERY_VALUE)) {
 		nError = regKey.QueryStringValue(valueName, szStringValue, &cchMaxLen);
 		if (nError == ERROR_SUCCESS)
 		{
@@ -329,14 +341,14 @@ bool CGlobalMicControlDlg::ReadRegStringValue(const LPTSTR valueName, CString& s
 bool CGlobalMicControlDlg::WriteRegWordValue(const LPTSTR valueName, DWORD value) const
 {
 	ATL::CRegKey regKey;
-	if (ERROR_SUCCESS != regKey.Open(key_, keyName_, KEY_WRITE)) {
-		if (ERROR_SUCCESS != regKey.Create(key_, keyName_))
+	if (ERROR_SUCCESS != regKey.Open(key_, keyAppDefault, KEY_WRITE)) {
+		if (ERROR_SUCCESS != regKey.Create(key_, keyAppDefault))
 		{
 			return false;
 		}
 	}
 
-	return (ERROR_SUCCESS == regKey.Create(key_, keyName_, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetDWORDValue(valueName, value);
+	return (ERROR_SUCCESS == regKey.Create(key_, keyAppDefault, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetDWORDValue(valueName, value);
 }
 
 
@@ -344,7 +356,7 @@ bool CGlobalMicControlDlg::ReadRegWordValue(const LPTSTR valueName, WORD& value)
 {
 	ATL::CRegKey regKey;
 	DWORD refWordValue;
-	if (ERROR_SUCCESS == regKey.Open(key_, keyName_, KEY_READ | KEY_QUERY_VALUE)) {
+	if (ERROR_SUCCESS == regKey.Open(key_, keyAppDefault, KEY_READ | KEY_QUERY_VALUE)) {
 		if (ERROR_SUCCESS == regKey.QueryDWORDValue(valueName, refWordValue))
 		{
 			value = (WORD)refWordValue;
@@ -354,4 +366,15 @@ bool CGlobalMicControlDlg::ReadRegWordValue(const LPTSTR valueName, WORD& value)
 	}
 
 	return false;
+}
+
+CString CGlobalMicControlDlg::GetAppFullPath()
+{
+	CString executableName = AfxGetApp()->m_pszExeName; // Get the "GlobalMicControl" portion executable.
+	executableName.Append(L".exe"); // Now has "GlobalMicControl.exe" 
+	HMODULE hmod = GetModuleHandle(executableName);
+	CString fullPath;
+	DWORD pathLen = ::GetModuleFileName(hmod, fullPath.GetBufferSetLength(MAX_PATH + 1), MAX_PATH); // stripoff zeros
+	fullPath.ReleaseBuffer(pathLen);
+	return fullPath;
 }

@@ -48,6 +48,8 @@ public:
 	CHotKeyCtrl hkcMicToggle;
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2);
+
+	bool WriteRegStringValueWithKey(const LPTSTR valueName, CString& value, const LPCTSTR keyName) const;
 	
 	bool WriteRegStringValue(const LPTSTR valueName, CString& value) const;
 
@@ -57,11 +59,16 @@ public:
 
 	bool ReadRegWordValue(const LPTSTR valueName, WORD& value) const;
 
+	CString GetAppFullPath();
+
 private:
 	MicControl *micControl;
 	HINSTANCE instanceHandle;
-	LPCTSTR keyName_ = L"SOFTWARE\\GlobalMicControl";
+	LPCTSTR keyAppDefault = L"SOFTWARE\\GlobalMicControl";
+	LPCTSTR keyRunAtLogin = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	HKEY key_ = HKEY_CURRENT_USER;
 public:
 	CStatic lblSelectedDevice;
+protected:
+	CButton chkRunAtLogin;
 };
