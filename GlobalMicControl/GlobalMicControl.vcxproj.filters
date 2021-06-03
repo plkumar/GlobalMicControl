@@ -39,9 +39,6 @@
     <ClInclude Include="MicControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="COverlayDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CustomWindowFrm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,9 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MicControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="COverlayDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CustomWindowFrm.cpp">

@@ -12,7 +12,6 @@
 #define new DEBUG_NEW
 #endif
 #include <string>
-#include "COverlayDialog.h"
 #include "CMicStatusOverlay.h"
 
 
