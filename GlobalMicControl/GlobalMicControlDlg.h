@@ -8,6 +8,7 @@
 #include "TrayDialog.h"
 #include "MicControl.h"
 #include <string>
+#include "CMicStatusOverlay.h"
 
 // CGlobalMicControlDlg dialog
 class CGlobalMicControlDlg : public CTrayDialog
@@ -33,6 +34,8 @@ protected:
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
+	void CreateOverlayWindow();
+	void ShowOverlayWindow(int nID);
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	void ShowAbout();
 	afx_msg void OnPaint();
@@ -67,6 +70,7 @@ private:
 	LPCTSTR keyAppDefault = L"SOFTWARE\\GlobalMicControl";
 	LPCTSTR keyRunAtLogin = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	HKEY key_ = HKEY_CURRENT_USER;
+	CMicStatusOverlay* statusDialog;
 public:
 	CStatic lblSelectedDevice;
 protected:

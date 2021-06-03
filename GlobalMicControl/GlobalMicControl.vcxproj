@@ -183,6 +183,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CMicStatusOverlay.h" />
+    <ClInclude Include="COverlayDialog.h" />
+    <ClInclude Include="CustomWindowFrm.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalMicControl.h" />
     <ClInclude Include="GlobalMicControlDlg.h" />
@@ -193,6 +196,9 @@
     <ClInclude Include="TrayDialog.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CMicStatusOverlay.cpp" />
+    <ClCompile Include="COverlayDialog.cpp" />
+    <ClCompile Include="CustomWindowFrm.cpp" />
     <ClCompile Include="GlobalMicControl.cpp" />
     <ClCompile Include="GlobalMicControlDlg.cpp" />
     <ClCompile Include="MicControl.cpp" />

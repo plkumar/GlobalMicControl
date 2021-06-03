@@ -12,6 +12,8 @@
 #define new DEBUG_NEW
 #endif
 #include <string>
+#include "COverlayDialog.h"
+#include "CMicStatusOverlay.h"
 
 
 // Message from the Systray Icon
@@ -64,6 +66,11 @@ CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 
 CGlobalMicControlDlg::~CGlobalMicControlDlg()
 {
+	if (statusDialog != NULL)
+	{
+		statusDialog->DestroyWindow();
+		statusDialog = NULL;
+	}
 	free(micControl);
 	micControl = NULL;
 }
@@ -167,7 +174,37 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	auto defaultDevice = micControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
+	CreateOverlayWindow();
+	ShowOverlayWindow(SW_SHOW);
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void CGlobalMicControlDlg::CreateOverlayWindow()
+{
+	statusDialog = new CMicStatusOverlay();
+	if (statusDialog != NULL)
+	{
+		// create and load the frame with its resources
+		auto ret = statusDialog->LoadFrame(IDR_MENU1, 0, NULL, NULL);
+
+		if (!ret)   //Create failed.
+		{
+			TRACE(L"Error creating overlay window.");
+		}
+	}
+}
+
+void CGlobalMicControlDlg::ShowOverlayWindow(int nID)
+{
+	if (statusDialog != NULL)
+	{
+		statusDialog->GetMenu()->Detach();
+		statusDialog->SetMenu(NULL);
+
+		statusDialog->ShowWindow(nID);
+		statusDialog->UpdateWindow();
+	}
 }
 
 void CGlobalMicControlDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -236,7 +273,8 @@ void CGlobalMicControlDlg::OnTrayMenuSettings()
 
 void CGlobalMicControlDlg::OnTrayMenuShowOverlay()
 {
-	AfxMessageBox(L"Here we'll toggle the transparent overlay");
+	//AfxMessageBox(L"Here we'll toggle the transparent overlay");
+	ShowOverlayWindow(SW_SHOW);
 }
 
 void CGlobalMicControlDlg::OnTrayMenuExit()
@@ -252,6 +290,8 @@ void CGlobalMicControlDlg::OnClose()
 		this->ShowWindow(SW_HIDE);
 	else
 	{
+		if (statusDialog != NULL)
+			statusDialog->CloseWindow();
 		UnregisterHotKey(this->m_hWnd, ID_HOTKEY);
 		CTrayDialog::OnClose();
 	}
