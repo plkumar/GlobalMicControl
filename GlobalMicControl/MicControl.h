@@ -15,6 +15,7 @@ class MicControl
 {
 public:
 	MicControl();
+	~MicControl();
 	void SetMute(MuteBehavior newMuteState);
 	MuteBehavior GetMuteState();
 
@@ -22,10 +23,8 @@ public:
 
 private:
 	// Global Variables:
-	HINSTANCE hInst;
-	IAudioEndpointVolume* micVolume;
-	//UINT_PTR muteTimer = 0;
-	IMMDeviceEnumerator* de;
+	IAudioEndpointVolume* micEndpointVolume;
+	IMMDeviceEnumerator* deviceEnumerator;
 
 private:
 	BOOL PlayResource(LPCWSTR lpName);

@@ -19,26 +19,31 @@ MicControl::MicControl()
 		TRACE(L"Failed to initialize COM environment!");
 	}
 
-	//IMMDeviceEnumerator* de;
+	//IMMDeviceEnumerator* deviceEnumerator;
 	if (CoCreateInstance(
 		__uuidof(MMDeviceEnumerator), NULL,
 		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
-		(void**)&de
+		(void**)&deviceEnumerator
 	) != S_OK) {
 		TRACE("Error creating instance for MMDeviceEnumerator.");
 		return;
 	}
 }
 
+MicControl::~MicControl()
+{
+
+}
+
 void MicControl::SetMute(MuteBehavior newMuteState)
 {
 
 	IMMDevice* micDevicePtr;
-	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
 
-	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micVolume);
+	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micEndpointVolume);
 	BOOL wasMuted;
-	micVolume->GetMute(&wasMuted);
+	micEndpointVolume->GetMute(&wasMuted);
 	if (wasMuted && newMuteState == MuteBehavior::MUTE) {
 		return;
 	}
@@ -53,23 +58,23 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 	const auto feedbackWav = wasMuted ? unmuteWav : muteWav;
 
 	if (!wasMuted) {
-		micVolume->SetMute(TRUE, nullptr);
+		micEndpointVolume->SetMute(TRUE, nullptr);
 	}
 	else {
-		micVolume->SetMute(FALSE, nullptr);
+		micEndpointVolume->SetMute(FALSE, nullptr);
 	}
 	//PlaySound(feedbackWav, hInst, SND_ASYNC | SND_RESOURCE);
-	//PlaySound(feedbackWav, hInst, SND_SYNC | SND_FILENAME);
+	PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM |SND_ASYNC | SND_FILENAME);
 }
 
 MuteBehavior MicControl::GetMuteState()
 {
 	IMMDevice* micDevicePtr;
-	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
 
-	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micVolume);
+	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micEndpointVolume);
 	BOOL wasMuted;
-	micVolume->GetMute(&wasMuted);
+	micEndpointVolume->GetMute(&wasMuted);
 	return wasMuted == TRUE ? MuteBehavior::MUTE : MuteBehavior::UNMUTE;
 }
 
@@ -79,7 +84,7 @@ CString MicControl::GetDefaultDeviceName()
 	IPropertyStore* pProps = NULL;
 	LPWSTR pwszID = NULL;
 	
-	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
 
 	auto hr = micDevicePtr->OpenPropertyStore(
 		STGM_READ, &pProps);
