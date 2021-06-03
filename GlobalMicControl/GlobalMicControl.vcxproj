@@ -213,7 +213,6 @@
   <ItemGroup>
     <Image Include="res\favicon.ico" />
     <Image Include="res\GlobalMicControl.ico" />
-    <Image Include="res\icon1.ico" />
     <Image Include="res\mic_unmu.ico" />
   </ItemGroup>
   <ItemGroup>

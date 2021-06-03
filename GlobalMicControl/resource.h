@@ -13,7 +13,6 @@
 #define IDR_MUTE                        134
 #define IDR_UNMUTE                      135
 #define IDI_MIC_UNMUTE                  142
-#define IDI_ICON1                       144
 #define IDC_HOTKEY_MICTOGGLE            1000
 #define IDC_BTN_MICTOGGLE_RESET         1001
 #define IDC_LABEL_SELECTED_DEVICE       1002

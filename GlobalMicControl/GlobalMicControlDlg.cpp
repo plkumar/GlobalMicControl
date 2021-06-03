@@ -59,7 +59,7 @@ END_MESSAGE_MAP()
 CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	//auto moduleHandle = GetModuleHandle(NULL);
 	
