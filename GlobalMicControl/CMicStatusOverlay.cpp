@@ -20,7 +20,7 @@ BEGIN_MESSAGE_MAP(CMicStatusOverlay, CCustomFrame)
 	ON_WM_ACTIVATE()
 	ON_WM_DESTROY()
 	ON_WM_SHOWWINDOW()
-	ON_WM_PAINT()
+	//ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 
@@ -113,56 +113,56 @@ void CMicStatusOverlay::OnShowWindow(BOOL bShow, UINT nStatus)
 }
 
 
-void CMicStatusOverlay::OnPaint()
-{
-	CPaintDC dc(this); // device context for painting
-					   // TODO: Add your message handler code here
-					   // Do not call CCustomFrame::OnPaint() for painting messages
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND,
-			reinterpret_cast<WPARAM>(dc.GetSafeHdc()),
-			0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, this->GetIcon(FALSE));
-	}
-	else
-	{
-		//Snippet 01: Get Client Coordinate of the Rectangle
-		CRect ClinetRect;
-		this->GetClientRect(&ClinetRect);
-
-		//Snippet 02: Declare Device Contexts and bitmap
-		CDC memoryDC;
-		CPaintDC DialogDC(this);
-		CBitmap tiledImage;
-
-		//Snippet 03: Load Image to Memory
-		memoryDC.CreateCompatibleDC(&DialogDC);
-		tiledImage.LoadBitmap(IDB_BITMAP1);
-		memoryDC.SelectObject(&tiledImage);
-
-		//Snippet 04: Copy memory pixels to dialog surface
-		DialogDC.BitBlt(
-			0,
-			0,
-			ClinetRect.Width(),
-			ClinetRect.Height(),
-			&memoryDC,
-			0,
-			0,
-			SRCCOPY);
-		CCustomFrame::OnPaint();
-	}
-}
+//void CMicStatusOverlay::OnPaint()
+//{
+//	CPaintDC dc(this); // device context for painting
+//					   // TODO: Add your message handler code here
+//					   // Do not call CCustomFrame::OnPaint() for painting messages
+//	if (IsIconic())
+//	{
+//		CPaintDC dc(this); // device context for painting
+//
+//		SendMessage(WM_ICONERASEBKGND,
+//			reinterpret_cast<WPARAM>(dc.GetSafeHdc()),
+//			0);
+//
+//		// Center icon in client rectangle
+//		int cxIcon = GetSystemMetrics(SM_CXICON);
+//		int cyIcon = GetSystemMetrics(SM_CYICON);
+//		CRect rect;
+//		GetClientRect(&rect);
+//		int x = (rect.Width() - cxIcon + 1) / 2;
+//		int y = (rect.Height() - cyIcon + 1) / 2;
+//
+//		// Draw the icon
+//		dc.DrawIcon(x, y, this->GetIcon(FALSE));
+//	}
+//	else
+//	{
+//		//Snippet 01: Get Client Coordinate of the Rectangle
+//		CRect ClinetRect;
+//		this->GetClientRect(&ClinetRect);
+//
+//		//Snippet 02: Declare Device Contexts and bitmap
+//		CDC memoryDC;
+//		CPaintDC DialogDC(this);
+//		CBitmap tiledImage;
+//
+//		//Snippet 03: Load Image to Memory
+//		memoryDC.CreateCompatibleDC(&DialogDC);
+//		tiledImage.LoadBitmap(IDB_BITMAP1);
+//		memoryDC.SelectObject(&tiledImage);
+//
+//		//Snippet 04: Copy memory pixels to dialog surface
+//		DialogDC.BitBlt(
+//			0,
+//			0,
+//			ClinetRect.Width(),
+//			ClinetRect.Height(),
+//			&memoryDC,
+//			0,
+//			0,
+//			SRCCOPY);
+//		//CCustomFrame::OnPaint();
+//	}
+//}

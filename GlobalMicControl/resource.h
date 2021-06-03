@@ -21,6 +21,7 @@
 #define IDC_BTN_MICTOGGLE_RESET         1001
 #define IDC_LABEL_SELECTED_DEVICE       1002
 #define IDC_CHECK_RUNATLOGIN            1003
+#define IDC_MICSTATUSPIC                1005
 #define ID_TRAYMENU_ABOUT               32771
 #define ID_TRAYMENU_SETTINGS            32772
 #define ID_TRAYMENU_EXIT                32773
@@ -32,7 +33,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        151
 #define _APS_NEXT_COMMAND_VALUE         32775
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           105
 #endif
 #endif
