@@ -14,8 +14,10 @@ enum class MuteBehavior {
 class MicControl
 {
 public:
+	//MicControl();
+	MicControl(HINSTANCE hInstance=NULL);
 	void SetMute(MuteBehavior SetTo, bool IsButtonUp);
-	MicControl(HINSTANCE hInstance);
+	MuteBehavior GetMuteState();
 
 private:
 	// Global Variables:

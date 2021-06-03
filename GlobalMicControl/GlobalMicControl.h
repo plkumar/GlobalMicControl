@@ -24,6 +24,9 @@ public:
 public:
 	virtual BOOL InitInstance();
 
+private:
+	HANDLE hSingleInstanceMutex;
+
 // Implementation
 
 	DECLARE_MESSAGE_MAP()

@@ -60,6 +60,12 @@ CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
+
+	//auto moduleHandle = GetModuleHandle(NULL);
+	
+	//micControl = new MicControl(AfxGetStaticModuleState()->m_hCurrentInstanceHandle);
+	micControl = new MicControl();
+	auto micState = micControl->GetMuteState();
 }
 
 void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)

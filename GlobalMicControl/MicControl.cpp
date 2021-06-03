@@ -66,14 +66,53 @@ void MicControl::SetMute(MuteBehavior SetTo, bool IsButtonUp)
 	PlaySound(feedbackWav, hInst, SND_SYNC | SND_FILENAME);
 }
 
-MicControl::MicControl(HINSTANCE hInstance)
+MuteBehavior MicControl::GetMuteState()
 {
-	hInst = hInstance;
+	if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
+	{
+		TRACE(L"ERROR");
+	}
+
+	IMMDeviceEnumerator* de;
 	CoCreateInstance(
 		__uuidof(MMDeviceEnumerator), NULL,
 		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
 		(void**)&de
 	);
+
+	IMMDevice* micDevicePtr;
+	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+
+	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micVolume);
+	BOOL wasMuted;
+	micVolume->GetMute(&wasMuted);
+	return wasMuted == TRUE ? MuteBehavior::MUTE : MuteBehavior::UNMUTE;
+}
+
+MicControl::MicControl(HINSTANCE hInstance)
+{
+	hInst = hInstance;
+
+	/*IMMDeviceEnumerator* de;
+	CoCreateInstance(
+		__uuidof(MMDeviceEnumerator), NULL,
+		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
+		(void**)&de
+	);
+
+	IMMDevice* micDevicePtr;
+	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+
+	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micVolume);
+
+	if (CoCreateInstance(
+		__uuidof(MMDeviceEnumerator), NULL,
+		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
+		(void**)&de
+	) != S_OK)
+	{
+		TRACE("ERROR initializing MMDeviceEnumerator");
+	}*/
 }
 
 BOOL MicControl::PlayResource(LPCWSTR lpName)

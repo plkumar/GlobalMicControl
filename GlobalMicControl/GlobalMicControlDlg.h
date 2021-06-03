@@ -6,6 +6,7 @@
 
 
 #include "TrayDialog.h"
+#include "MicControl.h"
 
 // CGlobalMicControlDlg dialog
 class CGlobalMicControlDlg : public CTrayDialog
@@ -19,7 +20,7 @@ public:
 	enum { IDD = IDD_GLOBALMICCONTROL_DIALOG };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	virtual void OnTrayLButtonDown(CPoint pt);
 
@@ -45,4 +46,9 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2);
 	afx_msg void OnBnClickedCancel();
+
+private:
+	MuteBehavior micState;
+	MicControl *micControl;
+	HINSTANCE instanceHandle;
 };
