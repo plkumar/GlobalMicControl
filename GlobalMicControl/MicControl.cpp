@@ -12,14 +12,26 @@ namespace {
 	const unsigned int PTT_RELEASE_DELAY_MS = 250;
 };
 
-void MicControl::SetMute(MuteBehavior SetTo, bool IsButtonUp)
+MicControl::MicControl()
 {
+	if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
+	{
+		TRACE(L"Failed to initialize COM environment!");
+	}
+
 	//IMMDeviceEnumerator* de;
-	/*CoCreateInstance(
+	if (CoCreateInstance(
 		__uuidof(MMDeviceEnumerator), NULL,
 		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
 		(void**)&de
-	);*/
+	) != S_OK) {
+		TRACE("Error creating instance for MMDeviceEnumerator.");
+		return;
+	}
+}
+
+void MicControl::SetMute(MuteBehavior newMuteState)
+{
 
 	IMMDevice* micDevicePtr;
 	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
@@ -27,10 +39,10 @@ void MicControl::SetMute(MuteBehavior SetTo, bool IsButtonUp)
 	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micVolume);
 	BOOL wasMuted;
 	micVolume->GetMute(&wasMuted);
-	if (wasMuted && SetTo == MuteBehavior::MUTE) {
+	if (wasMuted && newMuteState == MuteBehavior::MUTE) {
 		return;
 	}
-	if (!wasMuted && SetTo == MuteBehavior::UNMUTE) {
+	if (!wasMuted && newMuteState == MuteBehavior::UNMUTE) {
 		return;
 	}
 
@@ -41,45 +53,17 @@ void MicControl::SetMute(MuteBehavior SetTo, bool IsButtonUp)
 	const auto feedbackWav = wasMuted ? unmuteWav : muteWav;
 
 	if (!wasMuted) {
-		//if (PTT_RELEASE_DELAY_MS > 0 && IsButtonUp) {
-		//	// Push to talk released. Everyone releases the button once they've started the last syllable,
-		//	// but that's not understandable if you actually cut the microphone there. Wait a little longer.
-		//	muteTimer = SetTimer(
-		//		nullptr,
-		//		0,
-		//		PTT_RELEASE_DELAY_MS,
-		//		[](HWND hWnd, UINT, UINT_PTR idTimer, DWORD) {
-		//			muteTimer = 0;
-		//			KillTimer(hWnd, idTimer);
-		//			micVolume->SetMute(TRUE, nullptr);
-		//			PlaySound(MAKEINTRESOURCE(IDR_MUTE), hInst, SND_ASYNC | SND_RESOURCE);
-		//		}
-		//	);
-		//	return;
-		//}
 		micVolume->SetMute(TRUE, nullptr);
 	}
 	else {
 		micVolume->SetMute(FALSE, nullptr);
 	}
 	//PlaySound(feedbackWav, hInst, SND_ASYNC | SND_RESOURCE);
-	PlaySound(feedbackWav, hInst, SND_SYNC | SND_FILENAME);
+	//PlaySound(feedbackWav, hInst, SND_SYNC | SND_FILENAME);
 }
 
 MuteBehavior MicControl::GetMuteState()
 {
-	if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
-	{
-		TRACE(L"ERROR");
-	}
-
-	IMMDeviceEnumerator* de;
-	CoCreateInstance(
-		__uuidof(MMDeviceEnumerator), NULL,
-		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
-		(void**)&de
-	);
-
 	IMMDevice* micDevicePtr;
 	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
 
@@ -89,30 +73,37 @@ MuteBehavior MicControl::GetMuteState()
 	return wasMuted == TRUE ? MuteBehavior::MUTE : MuteBehavior::UNMUTE;
 }
 
-MicControl::MicControl(HINSTANCE hInstance)
+CString MicControl::GetDefaultDeviceName()
 {
-	hInst = hInstance;
-
-	/*IMMDeviceEnumerator* de;
-	CoCreateInstance(
-		__uuidof(MMDeviceEnumerator), NULL,
-		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
-		(void**)&de
-	);
-
 	IMMDevice* micDevicePtr;
+	IPropertyStore* pProps = NULL;
+	LPWSTR pwszID = NULL;
+	
 	de->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
 
-	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micVolume);
+	auto hr = micDevicePtr->OpenPropertyStore(
+		STGM_READ, &pProps);
+	
+	if (hr != S_OK) return NULL;
 
-	if (CoCreateInstance(
-		__uuidof(MMDeviceEnumerator), NULL,
-		CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
-		(void**)&de
-	) != S_OK)
-	{
-		TRACE("ERROR initializing MMDeviceEnumerator");
-	}*/
+	static PROPERTYKEY key;
+
+	GUID IDevice_FriendlyName = { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } };
+	key.pid = 14;
+	key.fmtid = IDevice_FriendlyName;
+	PROPVARIANT varName;
+
+	// Initialize container for property value.
+	PropVariantInit(&varName);
+	//pProps.
+	// Get the endpoint's friendly-name property.
+	hr = pProps->GetValue(key, &varName);
+	
+	if (hr != S_OK) return NULL;
+	CString deviceName = varName.pwszVal;
+	PropVariantClear(&varName);
+
+	return deviceName;
 }
 
 BOOL MicControl::PlayResource(LPCWSTR lpName)

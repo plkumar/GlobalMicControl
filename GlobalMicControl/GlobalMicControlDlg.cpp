@@ -65,18 +65,29 @@ CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	
 	//micControl = new MicControl(AfxGetStaticModuleState()->m_hCurrentInstanceHandle);
 	micControl = new MicControl();
-	auto micState = micControl->GetMuteState();
 }
 
 void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CTrayDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_HOTKEY_MICTOGGLE, hkcMicToggle);
+	DDX_Control(pDX, IDC_LABEL_SELECTED_DEVICE, lblSelectedDevice);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
 {
-	AfxMessageBox(L"click");
+	ToggleMute();
+}
+
+void CGlobalMicControlDlg::ToggleMute()
+{
+	MuteBehavior muteState = micControl->GetMuteState();
+	if (muteState == MuteBehavior::MUTE) {
+		micControl->SetMute(MuteBehavior::UNMUTE);
+	}
+	else {
+		micControl->SetMute(MuteBehavior::MUTE);
+	}
 }
 
 BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
@@ -142,6 +153,9 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	this->SendMessage(WM_SETHOTKEY, wKeyAndShift);*/
 
 	hkcMicToggle.SetHotKey('M', HOTKEYF_SHIFT + HOTKEYF_ALT);
+
+	auto defaultDevice = micControl->GetDefaultDeviceName();
+	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -261,9 +275,12 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 
 void CGlobalMicControlDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 {
-	// TODO: Add your message handler code here and/or call default
-	AfxMessageBox(L"hotkey pressed.");
-	CTrayDialog::OnHotKey(nHotKeyId, nKey1, nKey2);
+	if (nHotKeyId == ID_HOTKEY) {
+		//AfxMessageBox(L"hotkey pressed.");
+		ToggleMute();
+	}
+	else
+		CTrayDialog::OnHotKey(nHotKeyId, nKey1, nKey2);
 }
 
 //

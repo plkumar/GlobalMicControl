@@ -24,6 +24,8 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	virtual void OnTrayLButtonDown(CPoint pt);
 
+	void ToggleMute();
+
 // Implementation
 protected:
 	HICON m_hIcon;
@@ -48,7 +50,8 @@ public:
 	afx_msg void OnBnClickedCancel();
 
 private:
-	MuteBehavior micState;
 	MicControl *micControl;
 	HINSTANCE instanceHandle;
+public:
+	CStatic lblSelectedDevice;
 };
