@@ -7,6 +7,7 @@
 
 #include "TrayDialog.h"
 #include "MicControl.h"
+#include <string>
 
 // CGlobalMicControlDlg dialog
 class CGlobalMicControlDlg : public CTrayDialog
@@ -47,11 +48,20 @@ public:
 	CHotKeyCtrl hkcMicToggle;
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2);
-	afx_msg void OnBnClickedCancel();
+	
+	bool WriteRegStringValue(const LPTSTR valueName, CString& value) const;
+
+	bool ReadRegStringValue(const LPTSTR valueName, CString& strDest) const;
+
+	bool WriteRegWordValue(const LPTSTR valueName, DWORD value) const;
+
+	bool ReadRegWordValue(const LPTSTR valueName, WORD& value) const;
 
 private:
 	MicControl *micControl;
 	HINSTANCE instanceHandle;
+	LPCTSTR keyName_ = L"SOFTWARE\\GlobalMicControl";
+	HKEY key_ = HKEY_CURRENT_USER;
 public:
 	CStatic lblSelectedDevice;
 };

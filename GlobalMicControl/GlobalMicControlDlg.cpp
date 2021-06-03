@@ -11,6 +11,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include <string>
 
 
 // Message from the Systray Icon
@@ -152,7 +153,11 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	/*WORD wKeyAndShift = static_cast<WORD>(hkcMicToggle.GetHotKey());
 	this->SendMessage(WM_SETHOTKEY, wKeyAndShift);*/
 
-	hkcMicToggle.SetHotKey('M', HOTKEYF_SHIFT + HOTKEYF_ALT);
+	WORD vk=NULL, modifiers=NULL;
+	if (ReadRegWordValue(L"VirtualKey", vk) && ReadRegWordValue(L"ModifierKey", modifiers))
+	{
+		hkcMicToggle.SetHotKey(vk, modifiers);
+	}
 
 	auto defaultDevice = micControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
@@ -266,6 +271,8 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 		AfxMessageBox(L"Error using current key combination, try a different combination.");
 	}
 	else {
+		WriteRegWordValue(L"VirtualKey", vk);
+		WriteRegWordValue(L"ModifierKey", modifiers);
 		this->ShowWindow(SW_HIDE);
 	}
 		
@@ -283,11 +290,68 @@ void CGlobalMicControlDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 		CTrayDialog::OnHotKey(nHotKeyId, nKey1, nKey2);
 }
 
-//
-//void CGlobalMicControlDlg::OnBnClickedCancel()
-//{
-//	if (TrayIsVisible())
-//		this->ShowWindow(SW_HIDE);
-//	else
-//		CTrayDialog::OnClose();
-//}
+bool CGlobalMicControlDlg::WriteRegStringValue(const LPTSTR valueName, CString& value) const
+{
+	ATL::CRegKey regKey;
+	if (ERROR_SUCCESS != regKey.Open(key_, keyName_, KEY_WRITE)) {
+		if (ERROR_SUCCESS != regKey.Create(key_, keyName_))
+		{
+			regKey.Close();
+			return false;
+		}
+	}
+
+	return (ERROR_SUCCESS == regKey.Create(key_, keyName_, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetStringValue(valueName, value);
+}
+
+bool CGlobalMicControlDlg::ReadRegStringValue(const LPTSTR valueName, CString& strDest) const
+{
+	ATL::CRegKey regKey;
+	int nError = ERROR_SUCCESS;
+	TCHAR szStringValue[LF_FACESIZE] = { 0 };
+	ULONG cchMaxLen = _countof(szStringValue);
+	if (ERROR_SUCCESS == regKey.Open(key_, keyName_, KEY_READ | KEY_QUERY_VALUE)) {
+		nError = regKey.QueryStringValue(valueName, szStringValue, &cchMaxLen);
+		if (nError == ERROR_SUCCESS)
+		{
+			strDest = szStringValue;
+			return (true);
+		}
+		else
+		{
+			return (false);
+		}
+	}
+
+	return false;
+}
+
+bool CGlobalMicControlDlg::WriteRegWordValue(const LPTSTR valueName, DWORD value) const
+{
+	ATL::CRegKey regKey;
+	if (ERROR_SUCCESS != regKey.Open(key_, keyName_, KEY_WRITE)) {
+		if (ERROR_SUCCESS != regKey.Create(key_, keyName_))
+		{
+			return false;
+		}
+	}
+
+	return (ERROR_SUCCESS == regKey.Create(key_, keyName_, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetDWORDValue(valueName, value);
+}
+
+
+bool CGlobalMicControlDlg::ReadRegWordValue(const LPTSTR valueName, WORD& value) const
+{
+	ATL::CRegKey regKey;
+	DWORD refWordValue;
+	if (ERROR_SUCCESS == regKey.Open(key_, keyName_, KEY_READ | KEY_QUERY_VALUE)) {
+		if (ERROR_SUCCESS == regKey.QueryDWORDValue(valueName, refWordValue))
+		{
+			value = (WORD)refWordValue;
+			regKey.Close();
+			return true;
+		}
+	}
+
+	return false;
+}
