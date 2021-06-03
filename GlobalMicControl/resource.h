@@ -15,6 +15,8 @@
 #define IDI_MIC_UNMUTE                  142
 #define IDI_MIC_UNMUTE1                 143
 #define IDI_MIC_MUTE                    143
+#define IDR_MENU2                       149
+#define IDB_BITMAP1                     150
 #define IDC_HOTKEY_MICTOGGLE            1000
 #define IDC_BTN_MICTOGGLE_RESET         1001
 #define IDC_LABEL_SELECTED_DEVICE       1002
@@ -28,7 +30,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        149
+#define _APS_NEXT_RESOURCE_VALUE        151
 #define _APS_NEXT_COMMAND_VALUE         32775
 #define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           105

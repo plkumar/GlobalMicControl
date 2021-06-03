@@ -185,12 +185,12 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 	if (statusDialog != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = statusDialog->LoadFrame(IDR_MENU1, 0, NULL, NULL);
-
+		auto ret = statusDialog->LoadFrame(IDR_MENU2, 0, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");
 		}
+		statusDialog->SetTitle(L"Mic Status");
 	}
 }
 
@@ -200,8 +200,9 @@ void CGlobalMicControlDlg::ShowOverlayWindow(int nID)
 	{
 		statusDialog->GetMenu()->Detach();
 		statusDialog->SetMenu(NULL);
-
+		
 		statusDialog->ShowWindow(nID);
+		statusDialog->StayOnTop();
 		statusDialog->UpdateWindow();
 	}
 }
@@ -311,6 +312,7 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 		AfxMessageBox(L"Error using current key combination, try a different combination.");
 	}
 	else {
+		// TODO Move to AfxGetApp()->WriteProfile??? methods
 		WriteRegWordValue(L"VirtualKey", vk);
 		WriteRegWordValue(L"ModifierKey", modifiers);
 		WriteRegWordValue(L"RunAtLogin", chkRunAtLogin.GetCheck());

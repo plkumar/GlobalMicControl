@@ -46,7 +46,7 @@ CCustomFrame::CCustomFrame():b_maximized(FALSE)
 	winStats.titlb_sz = 43;
 	winStats.ico_size = 20;
 	cr_bkgnd = RGB(120,23,33);
-	cr_frm = RGB(84,23,34);
+	cr_frm = RGB(120, 23, 33);// RGB(84, 23, 34);
 }
 
 CCustomFrame::~CCustomFrame()
@@ -88,7 +88,7 @@ BOOL CCustomFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		rect.top + winStats.frm_clp_wdth
 		, rect.right - winStats.frm_clp_wdth, rect.bottom - winStats.frm_clp_wdth, 20,20);
     VERIFY(SetWindowRgn(m_CustomRgn , TRUE ));
-	st_winNm.Create(L"Custom Window", WS_CHILD | WS_VISIBLE, 
+	st_winNm.Create(L"Custom Window", WS_CHILD | WS_VISIBLE,
 	CRect(rect.left + winStats.bdr_wdth + winStats.ico_size + 4, 
 	rect.top  + 15 , 
 	rect.left + 150, 
@@ -374,6 +374,10 @@ void CCustomFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 	// Set the minimum  resized area
 	lpMMI->ptMinTrackSize.x = 220;
     lpMMI->ptMinTrackSize.y = 100;
+	lpMMI->ptMaxTrackSize.x = 320;
+	lpMMI->ptMaxTrackSize.y = 320;
+	/*lpMMI->ptMaxSize.x = 320;
+	lpMMI->ptMaxSize.x = 320;*/
 	CFrameWnd::OnGetMinMaxInfo(lpMMI);
 }
 
@@ -388,4 +392,10 @@ HBRUSH CCustomFrame::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	 return (HBRUSH)CreateSolidBrush(cr_frm);
 	}
 	return hbr;
+}
+
+void CCustomFrame::SetTitle(CString title)
+{
+	if(st_winNm)
+		st_winNm.SetWindowTextW(title);
 }

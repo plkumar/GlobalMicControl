@@ -215,6 +215,7 @@
     <None Include="res\GlobalMicControl.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="mic.bmp" />
     <Image Include="res\favicon.ico" />
     <Image Include="res\GlobalMicControl.ico" />
     <Image Include="res\mic_unmu.ico" />

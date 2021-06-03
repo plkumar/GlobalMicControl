@@ -14,5 +14,15 @@ public:
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 public:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
+
+	void StayOnTop() const;
+
+private:
+	LONG _defaultStyle;
+public:
+	afx_msg void OnDestroy();
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnPaint();
 };
 

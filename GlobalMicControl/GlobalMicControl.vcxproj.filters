@@ -89,6 +89,9 @@
     <Image Include="res\mic_unmu.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="mic.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="mute.wav">

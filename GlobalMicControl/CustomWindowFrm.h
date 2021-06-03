@@ -72,6 +72,8 @@ public:
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 
+	void SetTitle(CString title);
+
 private:
 	int ProcessResize(CPoint point);
 	int maximize(void);
