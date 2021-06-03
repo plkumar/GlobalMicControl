@@ -32,7 +32,10 @@ MicControl::MicControl()
 
 MicControl::~MicControl()
 {
-
+	free(micEndpointVolume);
+	free(deviceEnumerator);
+	micEndpointVolume=NULL;
+	deviceEnumerator=NULL;
 }
 
 void MicControl::SetMute(MuteBehavior newMuteState)
@@ -65,6 +68,7 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 	}
 	//PlaySound(feedbackWav, hInst, SND_ASYNC | SND_RESOURCE);
 	PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM |SND_ASYNC | SND_FILENAME);
+	//PlayResource(L"mute.wav");
 }
 
 MuteBehavior MicControl::GetMuteState()
@@ -116,26 +120,26 @@ BOOL MicControl::PlayResource(LPCWSTR lpName)
 	//BOOL bRtn;
 	//LPSTR lpRes;
 	//HRSRC hResInfo;
-	//HMODULE hModule;
+	//HGLOBAL hRes;
 
 	//// Find the WAVE resource. 
 
-	//hResInfo = FindResource(hModule, lpName, L"WAVE");
+	//hResInfo = FindResource(AfxGetStaticModuleState()->m_hCurrentInstanceHandle, lpName, L"WAVE");
 	//if (hResInfo == NULL)
 	//	return FALSE;
 
 	//// Load the WAVE resource. 
 
-	//auto hRes = LoadResource(hModule, hResInfo);
+	//hRes = LoadResource(AfxGetStaticModuleState()->m_hCurrentInstanceHandle, hResInfo);
 	//if (hRes == NULL)
 	//	return FALSE;
 
 	//// Lock the WAVE resource and play it. 
 
-	//LockResource(hRes);
+	//lpRes = (LPSTR) LockResource(hRes);
 	//if (lpRes != NULL) {
-	//	bRtn = sndPlaySound(hRes, SND_MEMORY | SND_SYNC |
-	//		SND_NODEFAULT);
+	//	//bRtn = sndPlaySound(lpRes, SND_MEMORY | SND_SYNC |
+	//	PlaySound(CString(lpRes), AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_RESOURCE | SND_ASYNC | SND_NODEFAULT);
 	//	UnlockResource(hRes);
 	//}
 	//else

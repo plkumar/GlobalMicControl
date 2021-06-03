@@ -54,17 +54,17 @@ END_MESSAGE_MAP()
 
 // CGlobalMicControlDlg dialog
 
-
-
 CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-
-	//auto moduleHandle = GetModuleHandle(NULL);
-	
-	//micControl = new MicControl(AfxGetStaticModuleState()->m_hCurrentInstanceHandle);
 	micControl = new MicControl();
+}
+
+CGlobalMicControlDlg::~CGlobalMicControlDlg()
+{
+	free(micControl);
+	micControl = NULL;
 }
 
 void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)

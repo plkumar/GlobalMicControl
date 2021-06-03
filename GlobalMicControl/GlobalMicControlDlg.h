@@ -14,7 +14,7 @@ class CGlobalMicControlDlg : public CTrayDialog
 // Construction
 public:
 	CGlobalMicControlDlg(CWnd* pParent = nullptr);	// standard constructor
-
+	~CGlobalMicControlDlg();
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_GLOBALMICCONTROL_DIALOG };
