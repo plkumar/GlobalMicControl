@@ -70,9 +70,11 @@ private:
 	LPCTSTR keyAppDefault = L"SOFTWARE\\GlobalMicControl";
 	LPCTSTR keyRunAtLogin = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	HKEY key_ = HKEY_CURRENT_USER;
-	CMicStatusOverlay* statusDialog;
+	CMicStatusOverlay* statusOverlayForm;
 public:
 	CStatic lblSelectedDevice;
 protected:
 	CButton chkRunAtLogin;
+public:
+	CStatic picMicrophone;
 };

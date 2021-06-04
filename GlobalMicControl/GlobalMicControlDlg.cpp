@@ -65,10 +65,10 @@ CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 
 CGlobalMicControlDlg::~CGlobalMicControlDlg()
 {
-	if (statusDialog != NULL)
+	if (statusOverlayForm != NULL)
 	{
-		statusDialog->DestroyWindow();
-		statusDialog = NULL;
+		statusOverlayForm->DestroyWindow();
+		statusOverlayForm = NULL;
 	}
 	free(micControl);
 	micControl = NULL;
@@ -80,6 +80,7 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_HOTKEY_MICTOGGLE, hkcMicToggle);
 	DDX_Control(pDX, IDC_LABEL_SELECTED_DEVICE, lblSelectedDevice);
 	DDX_Control(pDX, IDC_CHECK_RUNATLOGIN, chkRunAtLogin);
+	DDX_Control(pDX, IDC_MIC_IMAGE, picMicrophone);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
@@ -170,6 +171,9 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 		chkRunAtLogin.SetCheck(runAtLogin);
 	}
 
+	HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+	picMicrophone.SetBitmap(bitmap);
+
 	auto defaultDevice = micControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
@@ -181,29 +185,30 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 
 void CGlobalMicControlDlg::CreateOverlayWindow()
 {
-	statusDialog = new CMicStatusOverlay();
-	if (statusDialog != NULL)
+	statusOverlayForm = NULL;
+	statusOverlayForm = new CMicStatusOverlay();
+	if (statusOverlayForm != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = statusDialog->LoadFrame(IDR_MENU2, 0, NULL, NULL);
+		auto ret = statusOverlayForm->LoadFrame(IDR_MENU2, 0, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");
 		}
-		statusDialog->SetTitle(L"Mic Status");
+		statusOverlayForm->SetTitle(L"Mic Status");
 	}
 }
 
 void CGlobalMicControlDlg::ShowOverlayWindow(int nID)
 {
-	if (statusDialog != NULL)
+	if (statusOverlayForm != NULL )
 	{
-		statusDialog->GetMenu()->Detach();
-		statusDialog->SetMenu(NULL);
+		statusOverlayForm->GetMenu()->Detach();
+		statusOverlayForm->SetMenu(NULL);
 		
-		statusDialog->ShowWindow(nID);
-		statusDialog->StayOnTop();
-		statusDialog->UpdateWindow();
+		statusOverlayForm->ShowWindow(nID);
+		statusOverlayForm->StayOnTop();
+		statusOverlayForm->UpdateWindow();
 	}
 }
 
@@ -290,8 +295,8 @@ void CGlobalMicControlDlg::OnClose()
 		this->ShowWindow(SW_HIDE);
 	else
 	{
-		if (statusDialog != NULL)
-			statusDialog->CloseWindow();
+		if (statusOverlayForm != NULL)
+			statusOverlayForm->CloseWindow();
 		UnregisterHotKey(this->m_hWnd, ID_HOTKEY);
 		CTrayDialog::OnClose();
 	}
