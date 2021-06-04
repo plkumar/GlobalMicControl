@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CMicStatusOverlay, CCustomFrame)
 	ON_WM_DESTROY()
 	ON_WM_SHOWWINDOW()
 	//ON_WM_PAINT()
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -83,9 +84,9 @@ void CMicStatusOverlay::StayOnTop() const
 void CMicStatusOverlay::OnDestroy()
 {
 
-	WINDOWPLACEMENT wp;
+	/*WINDOWPLACEMENT wp;
 	GetWindowPlacement(&wp);
-	AfxGetApp()->WriteProfileBinary(L"MicStatusOverlay", L"WP", (LPBYTE)&wp, sizeof(wp));
+	AfxGetApp()->WriteProfileBinary(L"MicStatusOverlay", L"WP", (LPBYTE)&wp, sizeof(wp));*/
 
 	CCustomFrame::OnDestroy();
 }
@@ -95,11 +96,11 @@ void CMicStatusOverlay::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CCustomFrame::OnShowWindow(bShow, nStatus);
 
-	static bool bOnce = true;
+	//static bool bOnce = true;
 
-	if (bShow && !IsWindowVisible() && bOnce)
+	if (bShow && !IsWindowVisible()) // && bOnce)
 	{
-		bOnce = false;
+		//bOnce = false;
 
 		WINDOWPLACEMENT* lwp;
 		UINT nl;
@@ -166,3 +167,14 @@ void CMicStatusOverlay::OnShowWindow(BOOL bShow, UINT nStatus)
 //		//CCustomFrame::OnPaint();
 //	}
 //}
+
+
+void CMicStatusOverlay::OnClose()
+{
+	// TODO: Add your message handler code here and/or call default
+	WINDOWPLACEMENT wp;
+	GetWindowPlacement(&wp);
+	AfxGetApp()->WriteProfileBinary(L"MicStatusOverlay", L"WP", (LPBYTE)&wp, sizeof(wp));
+	ShowWindow(SW_HIDE);
+	//CCustomFrame::OnClose();
+}

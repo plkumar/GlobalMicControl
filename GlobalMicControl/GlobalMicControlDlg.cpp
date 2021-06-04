@@ -177,7 +177,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	auto defaultDevice = micControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
-	CreateOverlayWindow();
+	//CreateOverlayWindow();
 	ShowOverlayWindow(SW_SHOW);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -185,6 +185,17 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 
 void CGlobalMicControlDlg::CreateOverlayWindow()
 {
+	//TRY
+	//{
+	//	if (statusOverlayForm) {
+	//		statusOverlayForm->CloseWindow();
+	//		statusOverlayForm->DestroyWindow();
+	//	}
+	//}CATCH_ALL(e) {
+	//	//ignore 
+	//}
+	//END_CATCH_ALL;
+	
 	statusOverlayForm = NULL;
 	statusOverlayForm = new CMicStatusOverlay();
 	if (statusOverlayForm != NULL)
@@ -201,7 +212,10 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 
 void CGlobalMicControlDlg::ShowOverlayWindow(int nID)
 {
-	if (statusOverlayForm != NULL )
+	if(statusOverlayForm == NULL)
+		CreateOverlayWindow();
+
+	if (statusOverlayForm != NULL &&  statusOverlayForm->IsFrameWnd())
 	{
 		statusOverlayForm->GetMenu()->Detach();
 		statusOverlayForm->SetMenu(NULL);

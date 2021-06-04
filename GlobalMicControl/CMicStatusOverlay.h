@@ -24,5 +24,6 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnPaint();
+	afx_msg void OnClose();
 };
 
