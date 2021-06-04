@@ -57,9 +57,9 @@ public:
 
 	bool ReadRegStringValue(const LPTSTR valueName, CString& strDest) const;
 
-	bool WriteRegWordValue(const LPTSTR valueName, DWORD value) const;
+	//bool WriteRegWordValue(const LPTSTR valueName, DWORD value) const;
 
-	bool ReadRegWordValue(const LPTSTR valueName, WORD& value) const;
+	//bool ReadRegWordValue(const LPTSTR valueName, WORD& value) const;
 
 	CString GetAppFullPath();
 
@@ -75,4 +75,8 @@ public:
 	CStatic lblSelectedDevice;
 	CButton chkRunAtLogin;
 	CStatic picMicrophone;
+	CButton chkEnableMicStatus;
+	CStatic pnlMicStatusOverlay;
+	CSliderCtrl sldrTransparencyAlpha;
+	afx_msg void OnClickedCheckEnableOverlay();
 };

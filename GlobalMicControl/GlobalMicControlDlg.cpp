@@ -81,6 +81,9 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LABEL_SELECTED_DEVICE, lblSelectedDevice);
 	DDX_Control(pDX, IDC_CHECK_RUNATLOGIN, chkRunAtLogin);
 	DDX_Control(pDX, IDC_MIC_IMAGE, picMicrophone);
+	DDX_Control(pDX, IDC_CHECK_ENABLEOVERLAY, chkEnableMicStatus);
+	DDX_Control(pDX, IDC_STATUSOVERLAYGROUP, pnlMicStatusOverlay);
+	DDX_Control(pDX, IDC_ALPHASLIDER, sldrTransparencyAlpha);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
@@ -99,7 +102,7 @@ void CGlobalMicControlDlg::ToggleMute()
 	else {
 		m_pmicControl->SetMute(MuteBehavior::MUTE);
 		TraySetIcon(IDI_ICON2);
-		TrayUpdate();
+		TrayShow();
 	}
 }
 
@@ -116,6 +119,7 @@ BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_BN_CLICKED(IDOK, &CGlobalMicControlDlg::OnBnClickedOk)
 	ON_WM_HOTKEY()
 	//ON_BN_CLICKED(IDCANCEL, &CGlobalMicControlDlg::OnBnClickedCancel)
+	ON_BN_CLICKED(IDC_CHECK_ENABLEOVERLAY, &CGlobalMicControlDlg::OnClickedCheckEnableOverlay)
 END_MESSAGE_MAP()
 
 
@@ -161,19 +165,22 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	TraySetMinimizeToTray(TRUE);
 	TrayShow();
 
-	// Register hot key 
-	/*WORD wKeyAndShift = static_cast<WORD>(hkcMicToggle.GetHotKey());
-	this->SendMessage(WM_SETHOTKEY, wKeyAndShift);*/
+	chkEnableMicStatus.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"EnableMicStatus", 0));
+	sldrTransparencyAlpha.SetRange(10, 200, TRUE);
+	sldrTransparencyAlpha.SetPos(AfxGetApp()->GetProfileIntW(L"", L"AlphaChannel", 128));
+	sldrTransparencyAlpha.EnableWindow(chkEnableMicStatus.GetCheck());
 
 	WORD vk=NULL, modifiers=NULL;
-	WORD runAtLogin = NULL;
-	if (ReadRegWordValue(L"VirtualKey", vk) && ReadRegWordValue(L"ModifierKey", modifiers))
+	vk = AfxGetApp()->GetProfileIntW(L"", L"VirtualKey", 0);
+	modifiers = AfxGetApp()->GetProfileIntW(L"", L"ModifierKey", 0);
+	
+	if (vk!=0 || modifiers != 0 )
 	{
 		hkcMicToggle.SetHotKey(vk, modifiers);
 	}
-	if (ReadRegWordValue(L"RunAtLogin", runAtLogin)) {
-		chkRunAtLogin.SetCheck(runAtLogin);
-	}
+
+	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"RunAtLogin", 0));
+	
 
 	HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
 	picMicrophone.SetBitmap(bitmap);
@@ -181,8 +188,9 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	auto defaultDevice = m_pmicControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
-	//CreateOverlayWindow();
-	ShowOverlayWindow(SW_SHOW);
+	if(chkEnableMicStatus.GetCheck()==TRUE)
+		ShowOverlayWindow(SW_SHOW);
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -327,16 +335,18 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 		AfxMessageBox(L"Error using current key combination, try a different combination.");
 	}
 	else {
-		// TODO Move to AfxGetApp()->WriteProfile??? methods
-		WriteRegWordValue(L"VirtualKey", vk);
-		WriteRegWordValue(L"ModifierKey", modifiers);
-		WriteRegWordValue(L"RunAtLogin", chkRunAtLogin.GetCheck());
+		AfxGetApp()->WriteProfileInt(L"", L"VirtualKey", vk);
+		AfxGetApp()->WriteProfileInt(L"", L"ModifierKey", modifiers);
+		AfxGetApp()->WriteProfileInt(L"", L"RunAtLogin", chkRunAtLogin.GetCheck());
 		if (chkRunAtLogin.GetCheck() != 0)
 		{
 			WriteRegStringValueWithKey(L"GlobalMicControl", GetAppFullPath(), keyRunAtLogin);
 		}
 		this->ShowWindow(SW_HIDE);
 	}
+
+	AfxGetApp()->WriteProfileInt(L"", L"EnableMicStatus", chkEnableMicStatus.GetCheck());
+	AfxGetApp()->WriteProfileInt(L"", L"AlphaChannel", sldrTransparencyAlpha.GetPos());
 
 	//CTrayDialog::OnOK();
 }
@@ -367,63 +377,6 @@ bool CGlobalMicControlDlg::WriteRegStringValueWithKey(const LPTSTR valueName, CS
 	return false;
 }
 
-bool CGlobalMicControlDlg::WriteRegStringValue(const LPTSTR valueName, CString& value) const
-{
-	return WriteRegStringValueWithKey(valueName, value, keyAppDefault);
-}
-
-bool CGlobalMicControlDlg::ReadRegStringValue(const LPTSTR valueName, CString& strDest) const
-{
-	ATL::CRegKey regKey;
-	int nError = ERROR_SUCCESS;
-	TCHAR szStringValue[LF_FACESIZE] = { 0 };
-	ULONG cchMaxLen = _countof(szStringValue);
-	if (ERROR_SUCCESS == regKey.Open(key_, keyAppDefault, KEY_READ | KEY_QUERY_VALUE)) {
-		nError = regKey.QueryStringValue(valueName, szStringValue, &cchMaxLen);
-		if (nError == ERROR_SUCCESS)
-		{
-			strDest = szStringValue;
-			return (true);
-		}
-		else
-		{
-			return (false);
-		}
-	}
-
-	return false;
-}
-
-bool CGlobalMicControlDlg::WriteRegWordValue(const LPTSTR valueName, DWORD value) const
-{
-	ATL::CRegKey regKey;
-	if (ERROR_SUCCESS != regKey.Open(key_, keyAppDefault, KEY_WRITE)) {
-		if (ERROR_SUCCESS != regKey.Create(key_, keyAppDefault))
-		{
-			return false;
-		}
-	}
-
-	return (ERROR_SUCCESS == regKey.Create(key_, keyAppDefault, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_WRITE)) && ERROR_SUCCESS == regKey.SetDWORDValue(valueName, value);
-}
-
-
-bool CGlobalMicControlDlg::ReadRegWordValue(const LPTSTR valueName, WORD& value) const
-{
-	ATL::CRegKey regKey;
-	DWORD refWordValue;
-	if (ERROR_SUCCESS == regKey.Open(key_, keyAppDefault, KEY_READ | KEY_QUERY_VALUE)) {
-		if (ERROR_SUCCESS == regKey.QueryDWORDValue(valueName, refWordValue))
-		{
-			value = (WORD)refWordValue;
-			regKey.Close();
-			return true;
-		}
-	}
-
-	return false;
-}
-
 CString CGlobalMicControlDlg::GetAppFullPath()
 {
 	CString executableName = AfxGetApp()->m_pszExeName; // Get the "GlobalMicControl" portion executable.
@@ -433,4 +386,11 @@ CString CGlobalMicControlDlg::GetAppFullPath()
 	DWORD pathLen = ::GetModuleFileName(hmod, fullPath.GetBufferSetLength(MAX_PATH + 1), MAX_PATH); // stripoff zeros
 	fullPath.ReleaseBuffer(pathLen);
 	return fullPath;
+}
+
+void CGlobalMicControlDlg::OnClickedCheckEnableOverlay()
+{
+	// TODO: Add your control notification handler code here
+	pnlMicStatusOverlay.EnableWindow(chkEnableMicStatus.GetCheck());
+	sldrTransparencyAlpha.EnableWindow(chkEnableMicStatus.GetCheck());
 }
