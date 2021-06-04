@@ -175,6 +175,10 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	if (vk!=0 || modifiers != 0 )
 	{
 		hkcMicToggle.SetHotKey(vk, modifiers);
+		if (RegisterHotKey(this->m_hWnd, ID_HOTKEY, modifiers, vk) != TRUE)
+		{
+			TRACE("Unable to register hot key.");
+		}
 	}
 
 	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"RunAtLogin", 0));
