@@ -133,11 +133,15 @@ void CMicStatusOverlay::DrawMicStatus(BOOL isActive)
 	}
 	
 	static bool isCreated = false;
-	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	//if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_ICON | SS_LEFT | SS_REALSIZEIMAGE | SS_CENTERIMAGE, clientRect, this) == TRUE)
 	{
 		isCreated = true;
-		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
-		imgMicStatus.SetBitmap(bitmap);
+		//HICON hIcon = static_cast<HICON>LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 14,  14, LR_DEFAULTCOLOR));
+		HICON micIcon = LoadIcon(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDI_MUTE));
+		//HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+		//imgMicStatus.SetBitmap(bitmap);
+		imgMicStatus.SetIcon(micIcon);
 		imgMicStatus.ShowWindow(SW_SHOW);
 	}
 	else {
