@@ -80,8 +80,8 @@ private:
 	void restore(void);
 	void close_window(void);	
 	void SetWindowRects(void);
-	bool HandleCutomeFrame(CPoint point);
-	void HandleCustomeFrameCursor(CPoint point);
+	bool HandleCustomFrame(CPoint point);
+	void HandleCustomFrameCursor(CPoint point);
 };
 
 

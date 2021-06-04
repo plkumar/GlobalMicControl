@@ -53,14 +53,6 @@ public:
 
 	bool WriteRegStringValueWithKey(const LPTSTR valueName, CString& value, const LPCTSTR keyName) const;
 	
-	bool WriteRegStringValue(const LPTSTR valueName, CString& value) const;
-
-	bool ReadRegStringValue(const LPTSTR valueName, CString& strDest) const;
-
-	//bool WriteRegWordValue(const LPTSTR valueName, DWORD value) const;
-
-	//bool ReadRegWordValue(const LPTSTR valueName, WORD& value) const;
-
 	CString GetAppFullPath();
 
 private:

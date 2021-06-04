@@ -162,14 +162,14 @@ void CCustomFrame::OnPaint()
 
 void CCustomFrame::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if(!HandleCutomeFrame(point))
+	if(!HandleCustomFrame(point))
 		return ;
 	CFrameWnd::OnLButtonDown(nFlags, point);
 }
 
 void CCustomFrame::OnMouseMove(UINT nFlags, CPoint point)
 {
-	HandleCustomeFrameCursor(point);
+	HandleCustomFrameCursor(point);
 	CFrameWnd::OnMouseMove(nFlags, point);
 }
 
@@ -321,7 +321,7 @@ void CCustomFrame::SetWindowRects(void)
 	
 }
 
-bool CCustomFrame::HandleCutomeFrame(CPoint point)
+bool CCustomFrame::HandleCustomFrame(CPoint point)
 {
 	CRect rect, rRect;
 	GetClientRect(rect);
@@ -346,7 +346,7 @@ bool CCustomFrame::HandleCutomeFrame(CPoint point)
 	return true;
 }
 
-void CCustomFrame::HandleCustomeFrameCursor(CPoint point)
+void CCustomFrame::HandleCustomFrameCursor(CPoint point)
 {
 	//If the mouse was pointed to the custome frame, set the appropriate cursor for resizing
 	if (b_maximized)
