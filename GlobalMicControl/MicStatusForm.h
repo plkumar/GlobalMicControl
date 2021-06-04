@@ -23,6 +23,7 @@ private:
 	BYTE _alphaChannel = 128; //default to 50% opacity
 	LONG _defaultStyle;
 	CStatic imgMicStatus;
+	HICON m_hIcon;
 public:
 	afx_msg void OnClose();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

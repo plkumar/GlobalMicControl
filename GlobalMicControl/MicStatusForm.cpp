@@ -12,7 +12,7 @@ IMPLEMENT_DYNCREATE(CMicStatusForm, CFrameWnd)
 
 CMicStatusForm::CMicStatusForm()
 {
-
+	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
 }
 
 CMicStatusForm::~CMicStatusForm()
@@ -57,19 +57,27 @@ void CMicStatusForm::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, _defaultStyle);
 		SetLayeredWindowAttributes(0, 255, LWA_ALPHA);
 		ModifyStyle(0, WS_CAPTION); // to show titlebar
-		ModifyStyleEx(0, WS_EX_CLIENTEDGE);
 		DrawMicStatus(TRUE);
-		UpdateWindow();
+		//UpdateWindow();
 	}
 	else if (nState == WA_INACTIVE)
 	{
-		int wl = GetWindowLong(this->m_hWnd, GWL_EXSTYLE);
-		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, wl | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-		SetLayeredWindowAttributes(0, _alphaChannel, LWA_ALPHA);
+		//_defaultStyle = GetWindowLong(this->m_hWnd, GWL_EXSTYLE);
+		SetWindowLong(this->m_hWnd, _defaultStyle | GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
 		ModifyStyle(WS_CAPTION, 0); // to hide titlebar
-		ModifyStyleEx(WS_EX_CLIENTEDGE, 0);
+		//ModifyStyleEx(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE, 0);
+		SetLayeredWindowAttributes(0, _alphaChannel, LWA_ALPHA);
+
+		RECT rect;
+		GetClientRect(&rect);
+		CRgn m_CustomRgn;
+		m_CustomRgn.CreateRoundRectRgn(rect.left,
+			rect.top
+			, rect.right, rect.bottom, 90, 90);
+		VERIFY(SetWindowRgn(m_CustomRgn, TRUE));
+
 		DrawMicStatus(FALSE);
-		UpdateWindow();
+		//UpdateWindow();
 	}
 }
 
@@ -77,27 +85,32 @@ void CMicStatusForm::DrawMicStatus(BOOL isActive)
 {
 	RECT clientRect;
 	GetClientRect(&clientRect);
-	if (isActive) {
+
+	 //optional step - see below
+	/*if (isActive) {
 		clientRect.top += 40;
 		clientRect.bottom -= 40;
-	}
+	}*/
 
 	static bool isCreated = false;
-
+	//imgMicStatus.DestroyWindow();
 	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
-		//if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_ICON | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	//if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_ICON | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
 	{
 		isCreated = true;
 		//HICON micIcon = LoadIcon(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDI_MUTE));
-		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
-		imgMicStatus.SetBitmap(bitmap);
 		//imgMicStatus.SetIcon(micIcon);
+		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+		
+		imgMicStatus.SetBitmap(bitmap);	
+		imgMicStatus.RedrawWindow(&clientRect);
 		imgMicStatus.ShowWindow(SW_SHOW);
 	}
 	else {
-		//imgMicStatus.ShowWindow(SW_HIDE);
-		imgMicStatus.RedrawWindow(&clientRect);
-		//imgMicStatus.ShowWindow(SW_SHOW);
+		//imgMicStatus.RedrawWindow(&clientRect);
+		//imgMicStatus.GetWindowRect(&clientRect);
+		imgMicStatus.ScreenToClient(&clientRect);
+		imgMicStatus.ShowWindow(SW_SHOW);
 	}
 }
 
@@ -119,17 +132,12 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	this->SetWindowPos((const CWnd*)NULL, (int)0, (int)0,
-		300,
-		300,
+		200,
+		200,
 		SWP_NOZORDER | SWP_NOMOVE );
 
-	/*RECT rect;
-	GetClientRect(&rect);
-	CRgn m_CustomRgn;
-	m_CustomRgn.CreateRoundRectRgn(rect.left,
-		rect.top
-		, rect.right, rect.bottom, 50, 50);
-	VERIFY(SetWindowRgn(m_CustomRgn, TRUE));*/
+	SetIcon(m_hIcon, TRUE);			// Set big icon
+	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	_defaultStyle = GetWindowLongW(this->m_hWnd, GWL_EXSTYLE);
 

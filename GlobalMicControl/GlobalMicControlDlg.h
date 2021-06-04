@@ -8,7 +8,6 @@
 #include "TrayDialog.h"
 #include "MicControl.h"
 #include <string>
-#include "CMicStatusOverlay.h"
 #include "MicStatusForm.h"
 
 // CGlobalMicControlDlg dialog
@@ -71,4 +70,5 @@ public:
 	CStatic pnlMicStatusOverlay;
 	CSliderCtrl sldrTransparencyAlpha;
 	afx_msg void OnClickedCheckEnableOverlay();
+	afx_msg void OnDestroy();
 };

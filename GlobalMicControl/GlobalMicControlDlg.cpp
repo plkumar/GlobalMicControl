@@ -12,8 +12,6 @@
 #define new DEBUG_NEW
 #endif
 #include <string>
-#include "CMicStatusOverlay.h"
-
 
 // Message from the Systray Icon
 #define MYWM_NOTIFYICON		(WM_USER+2)
@@ -118,6 +116,7 @@ BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_BN_CLICKED(IDOK, &CGlobalMicControlDlg::OnBnClickedOk)
 	ON_WM_HOTKEY()
 	ON_BN_CLICKED(IDC_CHECK_ENABLEOVERLAY, &CGlobalMicControlDlg::OnClickedCheckEnableOverlay)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -210,7 +209,7 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 	if (frmMicStatusOverlay != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, WS_CAPTION, NULL, NULL);
+		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2,  NULL, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");
@@ -366,4 +365,14 @@ void CGlobalMicControlDlg::OnClickedCheckEnableOverlay()
 	// TODO: Add your control notification handler code here
 	pnlMicStatusOverlay.EnableWindow(chkEnableMicStatus.GetCheck());
 	sldrTransparencyAlpha.EnableWindow(chkEnableMicStatus.GetCheck());
+}
+
+
+void CGlobalMicControlDlg::OnDestroy()
+{
+	TrayHide();
+
+	CTrayDialog::OnDestroy();
+
+	// TODO: Add your message handler code here
 }
