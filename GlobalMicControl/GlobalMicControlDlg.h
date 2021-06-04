@@ -48,7 +48,6 @@ protected:
 public:
 	afx_msg void OnClose();
 	afx_msg void OnClickedBtnMicToggleReset();
-	CHotKeyCtrl hkcMicToggle;
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2);
 
@@ -65,16 +64,15 @@ public:
 	CString GetAppFullPath();
 
 private:
-	MicControl *micControl;
+	MicControl *m_pmicControl;
 	HINSTANCE instanceHandle;
 	LPCTSTR keyAppDefault = L"SOFTWARE\\GlobalMicControl";
 	LPCTSTR keyRunAtLogin = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	HKEY key_ = HKEY_CURRENT_USER;
-	CMicStatusOverlay* statusOverlayForm;
+	CMicStatusOverlay* frmMicStatusOverlay;
 public:
+	CHotKeyCtrl hkcMicToggle;
 	CStatic lblSelectedDevice;
-protected:
 	CButton chkRunAtLogin;
-public:
 	CStatic picMicrophone;
 };

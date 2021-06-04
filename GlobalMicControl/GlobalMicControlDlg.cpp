@@ -60,18 +60,18 @@ CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	micControl = new MicControl();
+	m_pmicControl = new MicControl();
 }
 
 CGlobalMicControlDlg::~CGlobalMicControlDlg()
 {
-	if (statusOverlayForm != NULL)
+	if (frmMicStatusOverlay != NULL)
 	{
-		statusOverlayForm->DestroyWindow();
-		statusOverlayForm = NULL;
+		frmMicStatusOverlay->DestroyWindow();
+		frmMicStatusOverlay = NULL;
 	}
-	free(micControl);
-	micControl = NULL;
+	free(m_pmicControl);
+	m_pmicControl = NULL;
 }
 
 void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
@@ -90,12 +90,16 @@ void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
 
 void CGlobalMicControlDlg::ToggleMute()
 {
-	MuteBehavior muteState = micControl->GetMuteState();
+	MuteBehavior muteState = m_pmicControl->GetMuteState();
 	if (muteState == MuteBehavior::MUTE) {
-		micControl->SetMute(MuteBehavior::UNMUTE);
+		m_pmicControl->SetMute(MuteBehavior::UNMUTE);
+		TraySetIcon(IDI_ICON1);
+		TrayUpdate();
 	}
 	else {
-		micControl->SetMute(MuteBehavior::MUTE);
+		m_pmicControl->SetMute(MuteBehavior::MUTE);
+		TraySetIcon(IDI_ICON2);
+		TrayUpdate();
 	}
 }
 
@@ -149,7 +153,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	TraySetIcon(IDI_MUTE);
+	TraySetIcon(IDI_ICON1);
 	CString strTrayToolTip;
 	ASSERT(strTrayToolTip.LoadString(IDS_SYSTRAY_TOOLTIP));
 	TraySetToolTip(strTrayToolTip);
@@ -174,55 +178,47 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
 	picMicrophone.SetBitmap(bitmap);
 
-	auto defaultDevice = micControl->GetDefaultDeviceName();
+	auto defaultDevice = m_pmicControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
 	//CreateOverlayWindow();
 	ShowOverlayWindow(SW_SHOW);
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
 void CGlobalMicControlDlg::CreateOverlayWindow()
 {
-	//TRY
-	//{
-	//	if (statusOverlayForm) {
-	//		statusOverlayForm->CloseWindow();
-	//		statusOverlayForm->DestroyWindow();
-	//	}
-	//}CATCH_ALL(e) {
-	//	//ignore 
-	//}
-	//END_CATCH_ALL;
-	
-	statusOverlayForm = NULL;
-	statusOverlayForm = new CMicStatusOverlay();
-	if (statusOverlayForm != NULL)
+	if (frmMicStatusOverlay != NULL && ::IsWindow(frmMicStatusOverlay->m_hWnd))
+	{
+		frmMicStatusOverlay->CloseWindow();
+		frmMicStatusOverlay->DestroyWindow();
+		frmMicStatusOverlay = NULL;
+	}
+	frmMicStatusOverlay = new CMicStatusOverlay();
+	if (frmMicStatusOverlay != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = statusOverlayForm->LoadFrame(IDR_MENU2, 0, NULL, NULL);
+		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, 0, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");
 		}
-		statusOverlayForm->SetTitle(L"Mic Status");
+		frmMicStatusOverlay->SetTitle(L"Mic Status");
+		frmMicStatusOverlay->GetMenu()->Detach();
+		frmMicStatusOverlay->SetMenu(NULL);
 	}
 }
 
 void CGlobalMicControlDlg::ShowOverlayWindow(int nID)
 {
-	if(statusOverlayForm == NULL)
+	if(frmMicStatusOverlay == NULL)
 		CreateOverlayWindow();
 
-	if (statusOverlayForm != NULL &&  statusOverlayForm->IsFrameWnd())
+	if (frmMicStatusOverlay != NULL &&  frmMicStatusOverlay->IsFrameWnd())
 	{
-		statusOverlayForm->GetMenu()->Detach();
-		statusOverlayForm->SetMenu(NULL);
-		
-		statusOverlayForm->ShowWindow(nID);
-		statusOverlayForm->StayOnTop();
-		statusOverlayForm->UpdateWindow();
+		frmMicStatusOverlay->ShowWindow(nID);
+		frmMicStatusOverlay->StayOnTop();
+		frmMicStatusOverlay->UpdateWindow();
 	}
 }
 
@@ -309,8 +305,8 @@ void CGlobalMicControlDlg::OnClose()
 		this->ShowWindow(SW_HIDE);
 	else
 	{
-		if (statusOverlayForm != NULL)
-			statusOverlayForm->CloseWindow();
+		if (frmMicStatusOverlay != NULL)
+			frmMicStatusOverlay->CloseWindow();
 		UnregisterHotKey(this->m_hWnd, ID_HOTKEY);
 		CTrayDialog::OnClose();
 	}

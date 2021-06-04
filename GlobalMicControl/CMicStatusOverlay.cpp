@@ -46,7 +46,7 @@ void CMicStatusOverlay::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized
 {
 	CCustomFrame::OnActivate(nState, pWndOther, bMinimized);
 
-	if (nState == WA_ACTIVE)
+	/*if (nState == WA_ACTIVE)
 	{
 		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, _defaultStyle);
 		SetLayeredWindowAttributes(0, 255, LWA_ALPHA);
@@ -58,7 +58,7 @@ void CMicStatusOverlay::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized
 		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, wl | WS_EX_LAYERED | WS_EX_TRANSPARENT);
 		SetLayeredWindowAttributes(0, 128, LWA_ALPHA);
 		UpdateWindow();
-	}
+	}*/
 }
 
 void CMicStatusOverlay::StayOnTop() const
@@ -95,6 +95,25 @@ void CMicStatusOverlay::OnDestroy()
 void CMicStatusOverlay::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CCustomFrame::OnShowWindow(bShow, nStatus);
+
+	RECT clientRect;
+	GetClientRect(&clientRect);
+	/*clientRect.left += 20;
+	clientRect.top += 20;
+	clientRect.bottom -= 20;
+	clientRect.right -= 20;*/
+
+	static bool isCreated = false;
+	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	{
+		isCreated = true;
+		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+		imgMicStatus.SetBitmap(bitmap);
+		imgMicStatus.ShowWindow(SW_SHOW);
+	}
+	else {
+		imgMicStatus.RedrawWindow(&clientRect);
+	}
 
 	//static bool bOnce = true;
 

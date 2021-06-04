@@ -92,6 +92,12 @@
     <Image Include="res\micon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="baseline_mic_off_black_48dp.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="baseline_mic_white_48dp.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="mute.wav">

@@ -146,6 +146,18 @@ BOOL CTrayDialog::TrayShow()
 	return bSuccess;
 }
 
+BOOL CTrayDialog::TrayUpdate()
+{
+	BOOL bSuccess = FALSE;
+	if (m_bTrayIconVisible)
+	{
+		bSuccess = Shell_NotifyIcon(NIM_MODIFY, &m_nidIconData);
+		if (bSuccess)
+			m_bTrayIconVisible = TRUE;
+	}
+	return bSuccess;
+}
+
 BOOL CTrayDialog::TrayHide()
 {
 	BOOL bSuccess = FALSE;
@@ -161,21 +173,6 @@ BOOL CTrayDialog::TrayHide()
 	}
 	return bSuccess;
 }
-
-BOOL CTrayDialog::TrayUpdate()
-{
-	BOOL bSuccess = FALSE;
-	if(m_bTrayIconVisible)
-	{
-		bSuccess = Shell_NotifyIcon(NIM_MODIFY,&m_nidIconData);
-	}
-	else
-	{
-		TRACE0("ICON NOT VISIBLE");
-	}
-	return bSuccess;
-}
-
 
 BOOL CTrayDialog::TraySetMenu(UINT nResourceID,UINT nDefaultPos)
 {

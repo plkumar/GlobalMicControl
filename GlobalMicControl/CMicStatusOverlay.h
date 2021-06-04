@@ -20,6 +20,7 @@ public:
 
 private:
 	LONG _defaultStyle;
+	CStatic imgMicStatus;
 public:
 	afx_msg void OnDestroy();
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);

@@ -373,11 +373,9 @@ void CCustomFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
 	// Set the minimum  resized area
 	lpMMI->ptMinTrackSize.x = 220;
-    lpMMI->ptMinTrackSize.y = 100;
+    lpMMI->ptMinTrackSize.y = 220;
 	lpMMI->ptMaxTrackSize.x = 320;
 	lpMMI->ptMaxTrackSize.y = 320;
-	/*lpMMI->ptMaxSize.x = 320;
-	lpMMI->ptMaxSize.x = 320;*/
 	CFrameWnd::OnGetMinMaxInfo(lpMMI);
 }
 

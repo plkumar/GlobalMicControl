@@ -215,6 +215,8 @@
     <None Include="res\GlobalMicControl.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="baseline_mic_off_black_48dp.ico" />
+    <Image Include="baseline_mic_white_48dp.ico" />
     <Image Include="mic.bmp" />
     <Image Include="res\GlobalMicControl.ico" />
     <Image Include="res\micoff.ico" />
