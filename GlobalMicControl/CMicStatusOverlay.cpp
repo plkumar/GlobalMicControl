@@ -46,19 +46,21 @@ void CMicStatusOverlay::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized
 {
 	CCustomFrame::OnActivate(nState, pWndOther, bMinimized);
 
-	/*if (nState == WA_ACTIVE)
+	if (nState == WA_ACTIVE)
 	{
 		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, _defaultStyle);
 		SetLayeredWindowAttributes(0, 255, LWA_ALPHA);
+		DrawMicStatus(TRUE);
 		UpdateWindow();
 	}
 	else if (nState == WA_INACTIVE)
 	{
 		int wl = GetWindowLong(this->m_hWnd, GWL_EXSTYLE);
 		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, wl | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-		SetLayeredWindowAttributes(0, 128, LWA_ALPHA);
+		SetLayeredWindowAttributes(0, _alphaChannel, LWA_ALPHA);
+		DrawMicStatus(FALSE);
 		UpdateWindow();
-	}*/
+	}
 }
 
 void CMicStatusOverlay::StayOnTop() const
@@ -80,6 +82,12 @@ void CMicStatusOverlay::StayOnTop() const
 );
 }
 
+void CMicStatusOverlay::UpdateOpacity(BYTE alpha)
+{
+	this->_alphaChannel = alpha;
+	UpdateWindow();
+}
+
 
 void CMicStatusOverlay::OnDestroy()
 {
@@ -96,24 +104,7 @@ void CMicStatusOverlay::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CCustomFrame::OnShowWindow(bShow, nStatus);
 
-	RECT clientRect;
-	GetClientRect(&clientRect);
-	/*clientRect.left += 20;
-	clientRect.top += 20;
-	clientRect.bottom -= 20;
-	clientRect.right -= 20;*/
-
-	static bool isCreated = false;
-	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_CENTERIMAGE, clientRect, this) == TRUE)
-	{
-		isCreated = true;
-		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
-		imgMicStatus.SetBitmap(bitmap);
-		imgMicStatus.ShowWindow(SW_SHOW);
-	}
-	else {
-		imgMicStatus.RedrawWindow(&clientRect);
-	}
+	DrawMicStatus(TRUE);
 
 	//static bool bOnce = true;
 
@@ -129,6 +120,28 @@ void CMicStatusOverlay::OnShowWindow(BOOL bShow, UINT nStatus)
 			SetWindowPlacement(lwp);
 			delete[] lwp;
 		}
+	}
+}
+
+void CMicStatusOverlay::DrawMicStatus(BOOL isActive)
+{
+	RECT clientRect;
+	GetClientRect(&clientRect);
+	if (isActive) {
+		clientRect.top += 40;
+		clientRect.bottom -= 40;
+	}
+	
+	static bool isCreated = false;
+	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	{
+		isCreated = true;
+		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
+		imgMicStatus.SetBitmap(bitmap);
+		imgMicStatus.ShowWindow(SW_SHOW);
+	}
+	else {
+		imgMicStatus.RedrawWindow(&clientRect);
 	}
 }
 

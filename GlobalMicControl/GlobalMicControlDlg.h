@@ -38,8 +38,6 @@ protected:
 	void ShowOverlayWindow(int nID);
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	void ShowAbout();
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnTrayMenuAbout();
 	afx_msg void OnTrayMenuSettings();
 	afx_msg void OnTrayMenuShowOverlay();
@@ -66,7 +64,7 @@ public:
 	CHotKeyCtrl hkcMicToggle;
 	CStatic lblSelectedDevice;
 	CButton chkRunAtLogin;
-	CStatic picMicrophone;
+	//CStatic picMicrophone;
 	CButton chkEnableMicStatus;
 	CStatic pnlMicStatusOverlay;
 	CSliderCtrl sldrTransparencyAlpha;

@@ -59,7 +59,7 @@ END_MESSAGE_MAP()
 CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
 	m_pmicControl = new MicControl();
 }
 
@@ -80,7 +80,7 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_HOTKEY_MICTOGGLE, hkcMicToggle);
 	DDX_Control(pDX, IDC_LABEL_SELECTED_DEVICE, lblSelectedDevice);
 	DDX_Control(pDX, IDC_CHECK_RUNATLOGIN, chkRunAtLogin);
-	DDX_Control(pDX, IDC_MIC_IMAGE, picMicrophone);
+	//DDX_Control(pDX, IDC_MIC_IMAGE, picMicrophone);
 	DDX_Control(pDX, IDC_CHECK_ENABLEOVERLAY, chkEnableMicStatus);
 	DDX_Control(pDX, IDC_STATUSOVERLAYGROUP, pnlMicStatusOverlay);
 	DDX_Control(pDX, IDC_ALPHASLIDER, sldrTransparencyAlpha);
@@ -118,7 +118,6 @@ BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_BN_CLICKED(IDC_BTN_MICTOGGLE_RESET, &CGlobalMicControlDlg::OnClickedBtnMicToggleReset)
 	ON_BN_CLICKED(IDOK, &CGlobalMicControlDlg::OnBnClickedOk)
 	ON_WM_HOTKEY()
-	//ON_BN_CLICKED(IDCANCEL, &CGlobalMicControlDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDC_CHECK_ENABLEOVERLAY, &CGlobalMicControlDlg::OnClickedCheckEnableOverlay)
 END_MESSAGE_MAP()
 
@@ -130,7 +129,6 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	CTrayDialog::OnInitDialog();
 
 	// Add "About..." menu item to system menu.
-
 	// IDM_ABOUTBOX must be in the system command range.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
@@ -181,9 +179,11 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 
 	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"RunAtLogin", 0));
 	
+	/*auto oldStyle = GetWindowLong(picMicrophone.m_hWnd, GWL_STYLE);
+	SetWindowLong(picMicrophone.m_hWnd, GWL_STYLE, oldStyle | SS_REALSIZECONTROL);
 
 	HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
-	picMicrophone.SetBitmap(bitmap);
+	picMicrophone.SetBitmap(bitmap);*/
 
 	auto defaultDevice = m_pmicControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
@@ -248,42 +248,6 @@ void CGlobalMicControlDlg::ShowAbout()
 	dlgAbout.DoModal();
 }
 
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
-void CGlobalMicControlDlg::OnPaint()
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CTrayDialog::OnPaint();
-	}
-}
-
-// The system calls this function to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR CGlobalMicControlDlg::OnQueryDragIcon()
-{
-	return static_cast<HCURSOR>(m_hIcon);
-}
-
 void CGlobalMicControlDlg::OnTrayMenuAbout()
 {
 	ShowAbout();
@@ -325,11 +289,14 @@ void CGlobalMicControlDlg::OnClickedBtnMicToggleReset()
 	hkcMicToggle.SetHotKey('A', HOTKEYF_ALT | HOTKEYF_SHIFT);
 }
 
-
 void CGlobalMicControlDlg::OnBnClickedOk()
 {
 	WORD vk, modifiers;
 	hkcMicToggle.GetHotKey(vk, modifiers);
+	if (UnregisterHotKey(this->m_hWnd, ID_HOTKEY) != TRUE) {
+		AfxMessageBox(L"Error, Unregistering hotkey");
+		return;
+	}
 	if (RegisterHotKey(this->m_hWnd, ID_HOTKEY, modifiers, vk) != TRUE)
 	{
 		AfxMessageBox(L"Error using current key combination, try a different combination.");
@@ -347,6 +314,8 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 
 	AfxGetApp()->WriteProfileInt(L"", L"EnableMicStatus", chkEnableMicStatus.GetCheck());
 	AfxGetApp()->WriteProfileInt(L"", L"AlphaChannel", sldrTransparencyAlpha.GetPos());
+
+	frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
 
 	//CTrayDialog::OnOK();
 }

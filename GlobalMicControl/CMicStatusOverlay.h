@@ -17,14 +17,16 @@ public:
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 
 	void StayOnTop() const;
+	void UpdateOpacity(BYTE alpha);
 
 private:
+	BYTE _alphaChannel = 128; //default to 50% opacity
 	LONG _defaultStyle;
 	CStatic imgMicStatus;
 public:
 	afx_msg void OnDestroy();
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
-	afx_msg void OnPaint();
+	void DrawMicStatus(BOOL isActive);
 	afx_msg void OnClose();
 };
 
