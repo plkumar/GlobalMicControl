@@ -9,6 +9,7 @@
 #include "MicControl.h"
 #include <string>
 #include "CMicStatusOverlay.h"
+#include "MicStatusForm.h"
 
 // CGlobalMicControlDlg dialog
 class CGlobalMicControlDlg : public CTrayDialog
@@ -59,7 +60,8 @@ private:
 	LPCTSTR keyAppDefault = L"SOFTWARE\\GlobalMicControl";
 	LPCTSTR keyRunAtLogin = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
 	HKEY key_ = HKEY_CURRENT_USER;
-	CMicStatusOverlay* frmMicStatusOverlay;
+	//CMicStatusOverlay* frmMicStatusOverlay;
+	CMicStatusForm* frmMicStatusOverlay;
 public:
 	CHotKeyCtrl hkcMicToggle;
 	CStatic lblSelectedDevice;

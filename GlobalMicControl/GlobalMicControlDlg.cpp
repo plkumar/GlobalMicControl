@@ -109,7 +109,6 @@ void CGlobalMicControlDlg::ToggleMute()
 BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
 	ON_COMMAND(ID_TRAYMENU_ABOUT, OnTrayMenuAbout)
 	ON_COMMAND(ID_TRAYMENU_SETTINGS, OnTrayMenuSettings)
 	ON_COMMAND(ID_TRAYMENU_SHOWOVERLAY, OnTrayMenuShowOverlay)
@@ -206,11 +205,12 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 		frmMicStatusOverlay->DestroyWindow();
 		frmMicStatusOverlay = NULL;
 	}
-	frmMicStatusOverlay = new CMicStatusOverlay();
+	//frmMicStatusOverlay = new CMicStatusOverlay();
+	frmMicStatusOverlay = new CMicStatusForm();
 	if (frmMicStatusOverlay != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, 0, NULL, NULL);
+		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, WS_CAPTION, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");
@@ -298,8 +298,7 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 	WORD vk, modifiers;
 	hkcMicToggle.GetHotKey(vk, modifiers);
 	if (UnregisterHotKey(this->m_hWnd, ID_HOTKEY) != TRUE) {
-		AfxMessageBox(L"Error, Unregistering hotkey");
-		return;
+		TRACE(L"Error, Unregistering hotkey");
 	}
 	if (RegisterHotKey(this->m_hWnd, ID_HOTKEY, modifiers, vk) != TRUE)
 	{
@@ -319,7 +318,8 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 	AfxGetApp()->WriteProfileInt(L"", L"EnableMicStatus", chkEnableMicStatus.GetCheck());
 	AfxGetApp()->WriteProfileInt(L"", L"AlphaChannel", sldrTransparencyAlpha.GetPos());
 
-	frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
+	if(frmMicStatusOverlay->IsWindowVisible())
+		frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
 
 	//CTrayDialog::OnOK();
 }

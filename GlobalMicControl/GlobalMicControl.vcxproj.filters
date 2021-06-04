@@ -39,10 +39,7 @@
     <ClInclude Include="MicControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CustomWindowFrm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CMicStatusOverlay.h">
+    <ClInclude Include="MicStatusForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -62,10 +59,7 @@
     <ClCompile Include="MicControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CustomWindowFrm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CMicStatusOverlay.cpp">
+    <ClCompile Include="MicStatusForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

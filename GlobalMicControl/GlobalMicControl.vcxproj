@@ -183,23 +183,21 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CMicStatusOverlay.h" />
-    <ClInclude Include="CustomWindowFrm.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalMicControl.h" />
     <ClInclude Include="GlobalMicControlDlg.h" />
     <ClInclude Include="MicControl.h" />
+    <ClInclude Include="MicStatusForm.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrayDialog.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CMicStatusOverlay.cpp" />
-    <ClCompile Include="CustomWindowFrm.cpp" />
     <ClCompile Include="GlobalMicControl.cpp" />
     <ClCompile Include="GlobalMicControlDlg.cpp" />
     <ClCompile Include="MicControl.cpp" />
+    <ClCompile Include="MicStatusForm.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
