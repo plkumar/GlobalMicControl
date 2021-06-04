@@ -83,13 +83,13 @@
     <Image Include="res\GlobalMicControl.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\favicon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\mic_unmu.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="mic.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\micoff.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\micon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

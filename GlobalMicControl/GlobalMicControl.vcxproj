@@ -216,9 +216,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="mic.bmp" />
-    <Image Include="res\favicon.ico" />
     <Image Include="res\GlobalMicControl.ico" />
-    <Image Include="res\mic_unmu.ico" />
+    <Image Include="res\micoff.ico" />
+    <Image Include="res\micon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="mute.wav" />

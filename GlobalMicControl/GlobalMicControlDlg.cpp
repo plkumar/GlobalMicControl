@@ -148,7 +148,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	TraySetIcon(IDI_MIC_UNMUTE);
+	TraySetIcon(IDI_MUTE);
 	CString strTrayToolTip;
 	ASSERT(strTrayToolTip.LoadString(IDS_SYSTRAY_TOOLTIP));
 	TraySetToolTip(strTrayToolTip);
