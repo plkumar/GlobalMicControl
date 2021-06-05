@@ -191,6 +191,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TransparentStatic.h" />
     <ClInclude Include="TrayDialog.h" />
   </ItemGroup>
   <ItemGroup>
@@ -204,6 +205,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TransparentStatic.cpp" />
     <ClCompile Include="TrayDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -215,7 +217,10 @@
   <ItemGroup>
     <Image Include="baseline_mic_off_black_48dp.ico" />
     <Image Include="baseline_mic_white_48dp.ico" />
-    <Image Include="mic.bmp" />
+    <Image Include="micmute.bmp" />
+    <Image Include="micmute.png" />
+    <Image Include="micunmute.bmp" />
+    <Image Include="micunmute.png" />
     <Image Include="res\GlobalMicControl.ico" />
     <Image Include="res\micoff.ico" />
     <Image Include="res\micon.ico" />

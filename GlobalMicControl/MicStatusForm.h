@@ -1,4 +1,5 @@
 #pragma once
+#include "TransparentStatic.h"
 
 
 // CMicStatusForm frame
@@ -22,7 +23,7 @@ public:
 private:
 	BYTE _alphaChannel = 128; //default to 50% opacity
 	LONG _defaultStyle;
-	CStatic imgMicStatus;
+	CTransparentStatic imgMicStatus;
 	HICON m_hIcon;
 public:
 	afx_msg void OnClose();

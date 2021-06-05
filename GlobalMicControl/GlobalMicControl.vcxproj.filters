@@ -42,6 +42,9 @@
     <ClInclude Include="MicStatusForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TransparentStatic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GlobalMicControl.cpp">
@@ -62,6 +65,9 @@
     <ClCompile Include="MicStatusForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TransparentStatic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GlobalMicControl.rc">
@@ -77,9 +83,6 @@
     <Image Include="res\GlobalMicControl.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="mic.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="res\micoff.ico">
       <Filter>Resource Files</Filter>
     </Image>
@@ -90,6 +93,18 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="baseline_mic_white_48dp.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="micmute.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="micunmute.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="micmute.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="micunmute.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

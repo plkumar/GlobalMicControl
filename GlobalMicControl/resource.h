@@ -19,6 +19,8 @@
 #define IDI_UNMUTE                      153
 #define IDI_ICON1                       156
 #define IDI_ICON2                       157
+#define IDB_BITMAP2                     165
+#define IDB_BITMAP3                     166
 #define IDC_HOTKEY_MICTOGGLE            1000
 #define IDC_BTN_MICTOGGLE_RESET         1001
 #define IDC_LABEL_SELECTED_DEVICE       1002
@@ -38,7 +40,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        158
+#define _APS_NEXT_RESOURCE_VALUE        167
 #define _APS_NEXT_COMMAND_VALUE         32775
 #define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           105

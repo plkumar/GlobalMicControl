@@ -100,8 +100,8 @@ void CMicStatusForm::DrawMicStatus(BOOL isActive)
 		isCreated = true;
 		//HICON micIcon = LoadIcon(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDI_MUTE));
 		//imgMicStatus.SetIcon(micIcon);
-		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
-		
+		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP2));
+		imgMicStatus.ModifyStyle(WS_BORDER, 0);
 		imgMicStatus.SetBitmap(bitmap);	
 		imgMicStatus.RedrawWindow(&clientRect);
 		imgMicStatus.ShowWindow(SW_SHOW);
