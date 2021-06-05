@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CMicStatusForm, CFrameWnd)
 	ON_WM_CLOSE()
 	ON_WM_CREATE()
 	ON_WM_SHOWWINDOW()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -253,4 +254,13 @@ BOOL CMicStatusForm::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return CFrameWnd::PreTranslateMessage(pMsg);
+}
+
+
+void CMicStatusForm::OnDestroy()
+{
+	//SaveWindowPlacement();
+	CFrameWnd::OnDestroy();
+
+	// TODO: Add your message handler code here
 }

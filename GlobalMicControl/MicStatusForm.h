@@ -38,6 +38,7 @@ public:
 	void UpdateMicStatus(BYTE status);
 	
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnDestroy();
 };
 
 

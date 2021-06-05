@@ -252,9 +252,10 @@ void CGlobalMicControlDlg::ShowOverlayWindow(int nID=SW_SHOW)
 void CGlobalMicControlDlg::CloseOverlayWindow()
 {
 	TRY
-		if (frmMicStatusOverlay != NULL && frmMicStatusOverlay->m_hWnd!=NULL )
+		if (frmMicStatusOverlay != NULL && IsWindow(frmMicStatusOverlay->m_hWnd) )
 		{
-			frmMicStatusOverlay->CloseWindow();
+			//frmMicStatusOverlay->CloseWindow();
+			SendMessageA(frmMicStatusOverlay->m_hWnd, WM_CLOSE, NULL, NULL);
 			frmMicStatusOverlay->DestroyWindow();
 		}
 	CATCH_ALL(e)
