@@ -234,10 +234,10 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 
 void CGlobalMicControlDlg::ShowOverlayWindow(int nID=SW_SHOW)
 {
-	if(frmMicStatusOverlay == NULL)
+	if(frmMicStatusOverlay == NULL || !::IsWindow(frmMicStatusOverlay->m_hWnd))
 		CreateOverlayWindow();
 
-	if (frmMicStatusOverlay != NULL &&  frmMicStatusOverlay->IsFrameWnd())
+	if (frmMicStatusOverlay != NULL && ::IsWindow(frmMicStatusOverlay->m_hWnd))
 	{
 		if (nID == SW_SHOW) {
 			isOverLayVisible = TRUE;
@@ -436,13 +436,18 @@ void CGlobalMicControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimi
 void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CTrayDialog::OnShowWindow(bShow, nStatus);
-
+	int initialLaunch = AfxGetApp()->GetProfileIntW(L"", L"InitialLaunch", TRUE);
 	// TODO: Add your message handler code here
 	static bool isFirstLaunch = true;
-	if (isFirstLaunch && bShow == TRUE)
+	if (isFirstLaunch && bShow == TRUE && initialLaunch!= TRUE)
 	{
 		isFirstLaunch = false;
 		::PostMessage(this->GetSafeHwnd(), WM_COMMAND, IDOK, 0); //end dialog with idok
 		//::PostMessage(this->GetSafeHwnd(), WM_CLOSE, 0, 0); //or, close dialog
+	}
+
+	if (initialLaunch == TRUE)
+	{
+		AfxGetApp()->WriteProfileInt(L"", L"InitialLaunch", FALSE);
 	}
 }

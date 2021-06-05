@@ -116,7 +116,7 @@ void CMicStatusForm::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
 	SaveWindowPlacement();
-	//CFrameWnd::OnClose();
+	CFrameWnd::OnClose();
 }
 
 void CMicStatusForm::SaveWindowPlacement()
