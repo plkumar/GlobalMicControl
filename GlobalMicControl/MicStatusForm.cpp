@@ -138,6 +138,7 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (AfxGetApp()->GetProfileBinary(L"", L"WP", (LPBYTE*)&lwp, &nl))
 	{
 		SetWindowPlacement(lwp);
+		DrawWindowRegion(lwp);
 	}
 	else {
 
@@ -149,8 +150,11 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		screenY = screenY - (screenY / 4);
 
 		this->SetWindowPos((const CWnd*)NULL, screenX, screenY,
-			200,
-			200, SWP_SHOWWINDOW);
+			_windowWidth, _windowHeight, SWP_SHOWWINDOW);
+
+		WINDOWPLACEMENT wp;
+		GetWindowPlacement(&wp);
+		DrawWindowRegion(&wp);
 	}
 
 	m_muteIcon = AfxGetApp()->LoadIcon(IDI_MUTE);
@@ -160,17 +164,25 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	//SetWindowText(L"Mic Status");
 
-	if (lwp != NULL)
-	{
-		VERIFY(SetWindowPos(NULL, lwp->rcNormalPosition.left, lwp->rcNormalPosition.top, 200, 200, SWP_SHOWWINDOW | SWP_NOOWNERZORDER));
-		HRGN region;
-		region = CreateEllipticRgn(2, 2, 198, 198);
-		SetWindowRgn(region, TRUE);
-	}
-
 	delete[] lwp;
 
 	return 0;
+}
+
+void CMicStatusForm::DrawWindowRegion(WINDOWPLACEMENT* lwp)
+{
+	if (lwp != NULL)
+	{
+		VERIFY(SetWindowPos(NULL, lwp->rcNormalPosition.left, lwp->rcNormalPosition.top, _windowHeight, _windowWidth, SWP_SHOWWINDOW | SWP_NOOWNERZORDER));
+		HRGN region;
+		region = CreateEllipticRgn(2, 2, _windowWidth - 2, _windowHeight - 2);
+		SetWindowRgn(region, TRUE);
+	}
+}
+
+void CMicStatusForm::SetOverlaySize(int size)
+{
+	_windowHeight = _windowWidth = size;
 }
 
 void CMicStatusForm::UpdateOpacity(BYTE alpha)

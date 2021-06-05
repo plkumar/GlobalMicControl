@@ -193,12 +193,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 
 	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"RunAtLogin", 0));
 
-	for (int i = 50; i <= 400; i += 50)
-	{
-		CString strItem;
-		strItem.Format(L"%dx%d", i,i);
-		comboOverLaySize.AddString(strItem);
-	}
+	PopulateSizeDropdown();
 	
 	/*auto oldStyle = GetWindowLong(picMicrophone.m_hWnd, GWL_STYLE);
 	SetWindowLong(picMicrophone.m_hWnd, GWL_STYLE, oldStyle | SS_REALSIZECONTROL);
@@ -218,6 +213,21 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
+void CGlobalMicControlDlg::PopulateSizeDropdown()
+{
+	auto selectedSize = AfxGetApp()->GetProfileIntW(L"", L"OverlaySize", _overlaySize);
+	for (int i = 50; i <= 400; i += 50)
+	{
+		CString strItem;
+		strItem.Format(L"%dx%d", i, i);
+		comboOverLaySize.AddString(strItem);
+		if (i == selectedSize)
+		{
+			comboOverLaySize.SelectString(0, strItem);
+		}
+	}
+}
+
 void CGlobalMicControlDlg::CreateOverlayWindow()
 {
 	if (frmMicStatusOverlay != NULL && ::IsWindow(frmMicStatusOverlay->m_hWnd))
@@ -227,7 +237,9 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 		frmMicStatusOverlay = NULL;
 	}
 	//frmMicStatusOverlay = new CMicStatusOverlay();
+	_overlaySize = AfxGetApp()->GetProfileIntW(L"", L"OverlaySize", _overlaySize);
 	frmMicStatusOverlay = new CMicStatusForm();
+	frmMicStatusOverlay->SetOverlaySize(_overlaySize);
 	if (frmMicStatusOverlay != NULL)
 	{
 		// create and load the frame with its resources
@@ -365,7 +377,7 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 
 	AfxGetApp()->WriteProfileInt(L"", L"EnableMicStatus", chkEnableMicStatus.GetCheck());
 	AfxGetApp()->WriteProfileInt(L"", L"AlphaChannel", sldrTransparencyAlpha.GetPos());
-
+	AfxGetApp()->WriteProfileInt(L"", L"OverlaySize", _overlaySize);
 	if(frmMicStatusOverlay!=NULL && frmMicStatusOverlay->IsWindowVisible())
 		frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
 
@@ -462,3 +474,4 @@ void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 		AfxGetApp()->WriteProfileInt(L"", L"InitialLaunch", FALSE);
 	}
 }
+

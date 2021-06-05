@@ -36,6 +36,7 @@ protected:
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
+	void PopulateSizeDropdown();
 	void CreateOverlayWindow();
 	void ShowOverlayWindow(int nID);
 	void CloseOverlayWindow();
@@ -65,6 +66,7 @@ private:
 	//CMicStatusOverlay* frmMicStatusOverlay;
 	CMicStatusForm* frmMicStatusOverlay;
 	BOOL isOverLayVisible = FALSE;
+	int _overlaySize = 100;
 public:
 	CHotKeyCtrl hkcMicToggle;
 	CStatic lblSelectedDevice;
