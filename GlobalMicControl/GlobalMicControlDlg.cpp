@@ -173,14 +173,14 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	TraySetMinimizeToTray(TRUE);
 	TrayShow();
 
-	chkEnableMicStatus.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"EnableMicStatus", 0));
+	chkEnableMicStatus.SetCheck(AfxGetApp()->GetProfileIntW(L"", REG_ENABLEMIC_STATUS, 0));
 	sldrTransparencyAlpha.SetRange(10, 200, TRUE);
-	sldrTransparencyAlpha.SetPos(AfxGetApp()->GetProfileIntW(L"", L"AlphaChannel", 128));
+	sldrTransparencyAlpha.SetPos(AfxGetApp()->GetProfileIntW(L"", REG_ALPHACHANNEL, 128));
 	sldrTransparencyAlpha.EnableWindow(chkEnableMicStatus.GetCheck());
 
 	WORD vk=NULL, modifiers=NULL;
-	vk = AfxGetApp()->GetProfileIntW(L"", L"VirtualKey", 0);
-	modifiers = AfxGetApp()->GetProfileIntW(L"", L"ModifierKey", 0);
+	vk = AfxGetApp()->GetProfileIntW(L"", REG_VIRTUAL_KEY, 0);
+	modifiers = AfxGetApp()->GetProfileIntW(L"", REG_MODIFIER_KEY, 0);
 	
 	if (vk!=0 || modifiers != 0 )
 	{
@@ -191,7 +191,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 		}
 	}
 
-	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"RunAtLogin", 0));
+	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", REG_RUNAT_LAUNCH, 0));
 
 	PopulateSizeDropdown();
 	
@@ -215,7 +215,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 
 void CGlobalMicControlDlg::PopulateSizeDropdown()
 {
-	auto selectedSize = AfxGetApp()->GetProfileIntW(L"", L"OverlaySize", _overlaySize);
+	auto selectedSize = AfxGetApp()->GetProfileIntW(L"", REG_OVERLAY_SIZE, _overlaySize);
 	for (int i = 50; i <= 400; i += 50)
 	{
 		CString strItem;
@@ -237,7 +237,7 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 		frmMicStatusOverlay = NULL;
 	}
 	//frmMicStatusOverlay = new CMicStatusOverlay();
-	_overlaySize = AfxGetApp()->GetProfileIntW(L"", L"OverlaySize", _overlaySize);
+	_overlaySize = AfxGetApp()->GetProfileIntW(L"", REG_OVERLAY_SIZE, _overlaySize);
 	frmMicStatusOverlay = new CMicStatusForm();
 	frmMicStatusOverlay->SetOverlaySize(_overlaySize);
 	if (frmMicStatusOverlay != NULL)
@@ -365,19 +365,26 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 		AfxMessageBox(L"Error using current key combination, try a different combination.");
 	}
 	else {
-		AfxGetApp()->WriteProfileInt(L"", L"VirtualKey", vk);
-		AfxGetApp()->WriteProfileInt(L"", L"ModifierKey", modifiers);
-		AfxGetApp()->WriteProfileInt(L"", L"RunAtLogin", chkRunAtLogin.GetCheck());
+		AfxGetApp()->WriteProfileInt(L"", REG_VIRTUAL_KEY, vk);
+		AfxGetApp()->WriteProfileInt(L"", REG_MODIFIER_KEY, modifiers);
+		AfxGetApp()->WriteProfileInt(L"", REG_RUNAT_LAUNCH, chkRunAtLogin.GetCheck());
 		if (chkRunAtLogin.GetCheck() != 0)
 		{
-			WriteRegStringValueWithKey(L"GlobalMicControl", GetAppFullPath(), keyRunAtLogin);
+			WriteRegStringValueWithKey(REG_GLOBALMICCONTROL, GetAppFullPath(), keyRunAtLogin);
 		}
 		this->ShowWindow(SW_HIDE);
 	}
 
-	AfxGetApp()->WriteProfileInt(L"", L"EnableMicStatus", chkEnableMicStatus.GetCheck());
-	AfxGetApp()->WriteProfileInt(L"", L"AlphaChannel", sldrTransparencyAlpha.GetPos());
-	AfxGetApp()->WriteProfileInt(L"", L"OverlaySize", _overlaySize);
+	AfxGetApp()->WriteProfileInt(L"", REG_ENABLEMIC_STATUS, chkEnableMicStatus.GetCheck());
+	AfxGetApp()->WriteProfileInt(L"", REG_ALPHACHANNEL, sldrTransparencyAlpha.GetPos());
+	
+	CString selectedItem;
+	comboOverLaySize.GetLBText(comboOverLaySize.GetCurSel(), selectedItem);
+	int xpos = selectedItem.Find(L"x");
+	selectedItem = selectedItem.Left(xpos);
+	_overlaySize = std::stoi({ selectedItem.GetString(), static_cast<size_t>(selectedItem.GetLength()) });
+	AfxGetApp()->WriteProfileInt(L"", REG_OVERLAY_SIZE, _overlaySize);
+
 	if(frmMicStatusOverlay!=NULL && frmMicStatusOverlay->IsWindowVisible())
 		frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
 
@@ -459,7 +466,7 @@ void CGlobalMicControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimi
 void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CTrayDialog::OnShowWindow(bShow, nStatus);
-	int initialLaunch = AfxGetApp()->GetProfileIntW(L"", L"InitialLaunch", TRUE);
+	int initialLaunch = AfxGetApp()->GetProfileIntW(L"", REG_INITIAL_LAUNCH, TRUE);
 	// TODO: Add your message handler code here
 	static bool isFirstLaunch = true;
 	if (isFirstLaunch && bShow == TRUE && initialLaunch!= TRUE)
@@ -471,7 +478,7 @@ void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 
 	if (initialLaunch == TRUE)
 	{
-		AfxGetApp()->WriteProfileInt(L"", L"InitialLaunch", FALSE);
+		AfxGetApp()->WriteProfileInt(L"", REG_INITIAL_LAUNCH, FALSE);
 	}
 }
 
