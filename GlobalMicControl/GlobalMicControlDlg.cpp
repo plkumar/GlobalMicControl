@@ -124,6 +124,8 @@ BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_WM_HOTKEY()
 	ON_BN_CLICKED(IDC_CHECK_ENABLEOVERLAY, &CGlobalMicControlDlg::OnClickedCheckEnableOverlay)
 	ON_WM_DESTROY()
+	ON_WM_ACTIVATE()
+	ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 
@@ -132,7 +134,7 @@ END_MESSAGE_MAP()
 BOOL CGlobalMicControlDlg::OnInitDialog()
 {
 	CTrayDialog::OnInitDialog();
-
+	this->ShowWindow(SW_HIDE);
 	// Add "About..." menu item to system menu.
 	// IDM_ABOUTBOX must be in the system command range.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
@@ -245,7 +247,7 @@ void CGlobalMicControlDlg::ShowOverlayWindow(int nID=SW_SHOW)
 
 		frmMicStatusOverlay->StayOnTop();
 		frmMicStatusOverlay->ShowWindow(nID);
-		frmMicStatusOverlay->UpdateWindow();
+		//frmMicStatusOverlay->UpdateWindow();
 	}
 }
 
@@ -254,7 +256,7 @@ void CGlobalMicControlDlg::CloseOverlayWindow()
 	TRY
 		if (frmMicStatusOverlay != NULL && IsWindow(frmMicStatusOverlay->m_hWnd) )
 		{
-			//frmMicStatusOverlay->CloseWindow();
+			//frmMicStatusOverlay->CloseWindow(); // this doesn't seem to trigger OnClose() CMicStatusForm
 			SendMessageA(frmMicStatusOverlay->m_hWnd, WM_CLOSE, NULL, NULL);
 			frmMicStatusOverlay->DestroyWindow();
 		}
@@ -353,7 +355,7 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 	AfxGetApp()->WriteProfileInt(L"", L"EnableMicStatus", chkEnableMicStatus.GetCheck());
 	AfxGetApp()->WriteProfileInt(L"", L"AlphaChannel", sldrTransparencyAlpha.GetPos());
 
-	if(frmMicStatusOverlay->IsWindowVisible())
+	if(frmMicStatusOverlay!=NULL && frmMicStatusOverlay->IsWindowVisible())
 		frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
 
 	//CTrayDialog::OnOK();
@@ -411,4 +413,36 @@ void CGlobalMicControlDlg::OnDestroy()
 	CTrayDialog::OnDestroy();
 
 	// TODO: Add your message handler code here
+}
+
+
+void CGlobalMicControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
+{
+	CTrayDialog::OnActivate(nState, pWndOther, bMinimized);
+
+	// TODO: Add your message handler code here
+	//if (nState== WA_ACTIVE)
+	//{
+	//	static bool isFirstActivation = true;
+	//	if (isFirstActivation) {
+	//		isFirstActivation = false;
+	//		::PostMessage(this->GetSafeHwnd(), WM_COMMAND, IDOK, 0); //end dialog with idok
+	//		//::PostMessage(this->GetSafeHwnd(), WM_CLOSE, 0, 0); //or, close dialog
+	//	}
+	//}
+}
+
+
+void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+	CTrayDialog::OnShowWindow(bShow, nStatus);
+
+	// TODO: Add your message handler code here
+	static bool isFirstLaunch = true;
+	if (isFirstLaunch && bShow == TRUE)
+	{
+		isFirstLaunch = false;
+		::PostMessage(this->GetSafeHwnd(), WM_COMMAND, IDOK, 0); //end dialog with idok
+		//::PostMessage(this->GetSafeHwnd(), WM_CLOSE, 0, 0); //or, close dialog
+	}
 }

@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CMicStatusForm, CFrameWnd)
 	ON_WM_CREATE()
 	ON_WM_SHOWWINDOW()
 	ON_WM_DESTROY()
+	ON_WM_EXITSIZEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -88,6 +89,7 @@ void CMicStatusForm::MakeWindowTransparent(BOOL bTransparent)
 		RemoveLayered();
 		RemoveClickThru();
 		MakeTransparent(255);
+		ModifyStyle(WS_CAPTION, 0);
 	}
 }
 
@@ -96,28 +98,13 @@ void CMicStatusForm::DrawMicStatus(BYTE isMuted)
 	RECT clientRect;
 	GetClientRect(&clientRect);
 
-	 //optional step - see below
-	/*if (isActive) {
-		clientRect.top += 40;
-		clientRect.bottom -= 40;
-	}*/
-
 	HBITMAP bitmap = isMuted ==TRUE? LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP2)) : LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP3));
 
-	/*static bool isCreated = false;
-	if (isCreated)
-	{
-		imgMicStatus.DestroyWindow();
-		isCreated = false;
-	}*/
-
 	imgMicStatus.DestroyWindow();
-
-	if (imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
-	//if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_ICON | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	//if (imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	if (imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL, clientRect, this) == TRUE)
 	{
-		//HICON micIcon = LoadIcon(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDI_MUTE));
-		//imgMicStatus.SetIcon(micIcon);
+		imgMicStatus.SetWindowPos(this, 0, 0, clientRect.right, clientRect.bottom, 0);
 		imgMicStatus.ModifyStyle(WS_BORDER, 0);
 		imgMicStatus.SetBitmap(bitmap);	
 		imgMicStatus.RedrawWindow(&clientRect);
@@ -137,7 +124,6 @@ void CMicStatusForm::SaveWindowPlacement()
 	WINDOWPLACEMENT wp;
 	GetWindowPlacement(&wp);
 	AfxGetApp()->WriteProfileBinary(L"", L"WP", (LPBYTE)&wp, sizeof(wp));
-	ShowWindow(SW_HIDE);
 }
 
 
@@ -151,12 +137,7 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (AfxGetApp()->GetProfileBinary(L"", L"WP", (LPBYTE*)&lwp, &nl))
 	{
-		/*this->SetWindowPos((const CWnd*)NULL, lwp->, (int)0,
-			200,
-			200, SWP_SHOWWINDOW);*/
-
 		SetWindowPlacement(lwp);
-		delete[] lwp;
 	}
 	else {
 
@@ -172,15 +153,22 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			200, SWP_SHOWWINDOW);
 	}
 
-
 	m_muteIcon = AfxGetApp()->LoadIcon(IDI_MUTE);
 	m_unmuteIcon = AfxGetApp()->LoadIcon(IDI_UNMUTE);
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-	SetWindowText(L"Mic Status");
+	//SetWindowText(L"Mic Status");
 
-	_defaultStyle = GetWindowLongW(this->m_hWnd, GWL_EXSTYLE);
+	if (lwp != NULL)
+	{
+		VERIFY(SetWindowPos(NULL, lwp->rcNormalPosition.left, lwp->rcNormalPosition.top, 200, 200, SWP_SHOWWINDOW | SWP_NOOWNERZORDER));
+		HRGN region;
+		region = CreateEllipticRgn(2, 2, 198, 198);
+		SetWindowRgn(region, TRUE);
+	}
+
+	delete[] lwp;
 
 	return 0;
 }
@@ -263,4 +251,12 @@ void CMicStatusForm::OnDestroy()
 	CFrameWnd::OnDestroy();
 
 	// TODO: Add your message handler code here
+}
+
+
+void CMicStatusForm::OnExitSizeMove()
+{
+	// TODO: Add your message handler code here and/or call default
+	SaveWindowPlacement();
+	__super::OnExitSizeMove();
 }

@@ -27,8 +27,8 @@ private:
 
 private:
 	BYTE _alphaChannel = 128; //default to 50% opacity
-	LONG _defaultStyle;
 	CTransparentStatic imgMicStatus;
+	//CStatic imgMicStatus;
 	HICON m_hIcon;
 	HICON m_muteIcon;
 	HICON m_unmuteIcon;
@@ -39,6 +39,7 @@ public:
 	
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnDestroy();
+	afx_msg void OnExitSizeMove();
 };
 
 

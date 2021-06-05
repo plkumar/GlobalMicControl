@@ -75,4 +75,6 @@ public:
 	CSliderCtrl sldrTransparencyAlpha;
 	afx_msg void OnClickedCheckEnableOverlay();
 	afx_msg void OnDestroy();
+	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 };
