@@ -28,6 +28,8 @@ protected:
 
 	void ToggleMute();
 
+	void UpdateMuteState();
+
 // Implementation
 protected:
 	HICON m_hIcon;
@@ -36,6 +38,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	void CreateOverlayWindow();
 	void ShowOverlayWindow(int nID);
+	void CloseOverlayWindow();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	void ShowAbout();
 	afx_msg void OnTrayMenuAbout();
@@ -61,6 +64,7 @@ private:
 	HKEY key_ = HKEY_CURRENT_USER;
 	//CMicStatusOverlay* frmMicStatusOverlay;
 	CMicStatusForm* frmMicStatusOverlay;
+	BOOL isOverLayVisible = FALSE;
 public:
 	CHotKeyCtrl hkcMicToggle;
 	CStatic lblSelectedDevice;

@@ -95,12 +95,6 @@
     <Image Include="baseline_mic_white_48dp.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="micmute.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="micunmute.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="micmute.bmp">
       <Filter>Resource Files</Filter>
     </Image>

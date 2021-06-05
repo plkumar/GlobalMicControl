@@ -54,34 +54,45 @@ void CMicStatusForm::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 
 	if (nState == WA_ACTIVE)
 	{
-		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, _defaultStyle);
-		SetLayeredWindowAttributes(0, 255, LWA_ALPHA);
-		ModifyStyle(0, WS_CAPTION); // to show titlebar
-		DrawMicStatus(TRUE);
+		MakeTransparent(FALSE);
+		DrawMicStatus(_micStatus);
 		//UpdateWindow();
 	}
 	else if (nState == WA_INACTIVE)
 	{
-		//_defaultStyle = GetWindowLong(this->m_hWnd, GWL_EXSTYLE);
-		SetWindowLong(this->m_hWnd, _defaultStyle | GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
-		ModifyStyle(WS_CAPTION, 0); // to hide titlebar
-		//ModifyStyleEx(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE, 0);
-		SetLayeredWindowAttributes(0, _alphaChannel, LWA_ALPHA);
+		MakeTransparent(TRUE);
 
-		RECT rect;
+		/*RECT rect;
 		GetClientRect(&rect);
 		CRgn m_CustomRgn;
 		m_CustomRgn.CreateRoundRectRgn(rect.left,
 			rect.top
 			, rect.right, rect.bottom, 90, 90);
-		VERIFY(SetWindowRgn(m_CustomRgn, TRUE));
+		VERIFY(SetWindowRgn(m_CustomRgn, TRUE));*/
 
-		DrawMicStatus(FALSE);
+		DrawMicStatus(_micStatus);
 		//UpdateWindow();
 	}
 }
 
-void CMicStatusForm::DrawMicStatus(BOOL isActive)
+void CMicStatusForm::MakeTransparent(BOOL bTransparent)
+{
+	if (bTransparent)
+	{
+		//_defaultStyle = GetWindowLong(this->m_hWnd, GWL_EXSTYLE);
+		SetWindowLong(this->m_hWnd, _defaultStyle | GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+		ModifyStyle(WS_CAPTION, 0); // to hide titlebar
+									//ModifyStyleEx(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE, 0);
+		SetLayeredWindowAttributes(0, _alphaChannel, LWA_ALPHA);
+	}
+	else {
+		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, _defaultStyle);
+		SetLayeredWindowAttributes(0, 255, LWA_ALPHA);
+		ModifyStyle(0, WS_CAPTION); // to show titlebar
+	}
+}
+
+void CMicStatusForm::DrawMicStatus(BYTE isMuted)
 {
 	RECT clientRect;
 	GetClientRect(&clientRect);
@@ -92,24 +103,30 @@ void CMicStatusForm::DrawMicStatus(BOOL isActive)
 		clientRect.bottom -= 40;
 	}*/
 
+	HBITMAP bitmap = isMuted ==TRUE? LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP2)) : LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP3));
+
 	static bool isCreated = false;
-	//imgMicStatus.DestroyWindow();
+	if (isCreated)
+	{
+		imgMicStatus.DestroyWindow();
+		isCreated = false;
+	}
+
 	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
 	//if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_ICON | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
 	{
 		isCreated = true;
 		//HICON micIcon = LoadIcon(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDI_MUTE));
 		//imgMicStatus.SetIcon(micIcon);
-		HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP2));
 		imgMicStatus.ModifyStyle(WS_BORDER, 0);
 		imgMicStatus.SetBitmap(bitmap);	
 		imgMicStatus.RedrawWindow(&clientRect);
 		imgMicStatus.ShowWindow(SW_SHOW);
 	}
 	else {
-		//imgMicStatus.RedrawWindow(&clientRect);
-		//imgMicStatus.GetWindowRect(&clientRect);
-		imgMicStatus.ScreenToClient(&clientRect);
+		imgMicStatus.RedrawWindow(&clientRect);
+		/*imgMicStatus.GetWindowRect(&clientRect);
+		imgMicStatus.ScreenToClient(&clientRect);*/
 		imgMicStatus.ShowWindow(SW_SHOW);
 	}
 }
@@ -117,11 +134,16 @@ void CMicStatusForm::DrawMicStatus(BOOL isActive)
 void CMicStatusForm::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
+	SaveWindowPlacement();
+	//CFrameWnd::OnClose();
+}
+
+void CMicStatusForm::SaveWindowPlacement()
+{
 	WINDOWPLACEMENT wp;
 	GetWindowPlacement(&wp);
 	AfxGetApp()->WriteProfileBinary(L"", L"WP", (LPBYTE)&wp, sizeof(wp));
 	ShowWindow(SW_HIDE);
-	//CFrameWnd::OnClose();
 }
 
 
@@ -130,14 +152,39 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  Add your specialized creation code here
-	this->SetWindowPos((const CWnd*)NULL, (int)0, (int)0,
-		200,
-		200,
-		SWP_NOZORDER | SWP_NOMOVE );
+	WINDOWPLACEMENT* lwp;
+	UINT nl;
+
+	if (AfxGetApp()->GetProfileBinary(L"", L"WP", (LPBYTE*)&lwp, &nl))
+	{
+		/*this->SetWindowPos((const CWnd*)NULL, lwp->, (int)0,
+			200,
+			200, SWP_SHOWWINDOW);*/
+
+		SetWindowPlacement(lwp);
+		delete[] lwp;
+	}
+	else {
+
+		auto screenX = GetSystemMetrics(SM_CXSCREEN);
+		auto screenY = GetSystemMetrics(SM_CYSCREEN);
+
+		screenX = screenX - (screenX / 6);
+
+		screenY = screenY - (screenY / 4);
+
+		this->SetWindowPos((const CWnd*)NULL, screenX, screenY,
+			200,
+			200, SWP_SHOWWINDOW);
+	}
+
+
+	m_muteIcon = AfxGetApp()->LoadIcon(IDI_MUTE);
+	m_unmuteIcon = AfxGetApp()->LoadIcon(IDI_UNMUTE);
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
+	SetWindowText(L"Mic status");
 
 	_defaultStyle = GetWindowLongW(this->m_hWnd, GWL_EXSTYLE);
 
@@ -150,34 +197,46 @@ void CMicStatusForm::UpdateOpacity(BYTE alpha)
 	UpdateWindow();
 }
 
+void CMicStatusForm::UpdateMicStatus(BYTE status)
+{
+	_micStatus = status;
+
+	if (status == 1) // MUTE
+	{
+		SetWindowText(L"MUTED");
+		SetIcon(m_muteIcon, FALSE);
+		DrawMicStatus(status);
+	}
+	else if (status == 2) // UNMUTE
+	{
+		SetWindowText(L"UNMUTED");
+		SetIcon(m_unmuteIcon, FALSE);
+		DrawMicStatus(status);
+	}
+	else
+	{
+		//TODO  implementation for unknown state.
+	}
+}
+
 void CMicStatusForm::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CFrameWnd::OnShowWindow(bShow, nStatus);
 
-	// TODO: Add your message handler code here
-	DrawMicStatus(TRUE);
+	//DrawMicStatus(TRUE);
 
-	//static bool bOnce = true;
+	//if (bShow && !IsWindowVisible()) // && bOnce)
+	//{
+	//	WINDOWPLACEMENT* lwp;
+	//	UINT nl;
 
-	if (bShow && !IsWindowVisible()) // && bOnce)
-	{
-		//bOnce = false;
-
-		WINDOWPLACEMENT* lwp;
-		UINT nl;
-
-		if (AfxGetApp()->GetProfileBinary(L"", L"WP", (LPBYTE*)&lwp, &nl))
-		{
-			SetWindowPlacement(lwp);
-			delete[] lwp;
-		}
-	}
+	//	if (AfxGetApp()->GetProfileBinary(L"", L"WP", (LPBYTE*)&lwp, &nl))
+	//	{
+	//		SetWindowPlacement(lwp);
+	//		delete[] lwp;
+	//	}
+	//} else if (!bShow) {
+	//	SaveWindowPlacement();
+	//}
 }
 
-
-BOOL CMicStatusForm::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
-{
-	// TODO: Add your specialized code here and/or call the base class
-	
-	return CFrameWnd::OnCreateClient(lpcs, pContext);
-}

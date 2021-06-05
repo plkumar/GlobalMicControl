@@ -65,7 +65,7 @@ CGlobalMicControlDlg::~CGlobalMicControlDlg()
 {
 	if (frmMicStatusOverlay != NULL)
 	{
-		frmMicStatusOverlay->DestroyWindow();
+		//frmMicStatusOverlay->DestroyWindow();
 		frmMicStatusOverlay = NULL;
 	}
 	free(m_pmicControl);
@@ -94,14 +94,21 @@ void CGlobalMicControlDlg::ToggleMute()
 	MuteBehavior muteState = m_pmicControl->GetMuteState();
 	if (muteState == MuteBehavior::MUTE) {
 		m_pmicControl->SetMute(MuteBehavior::UNMUTE);
-		TraySetIcon(IDI_ICON1);
-		TrayUpdate();
 	}
 	else {
 		m_pmicControl->SetMute(MuteBehavior::MUTE);
-		TraySetIcon(IDI_ICON2);
-		TrayShow();
 	}
+
+	UpdateMuteState();
+}
+
+void CGlobalMicControlDlg::UpdateMuteState()
+{
+	MuteBehavior muteState = m_pmicControl->GetMuteState();
+	frmMicStatusOverlay->UpdateMicStatus((BYTE)muteState);
+	auto icon = muteState == MuteBehavior::MUTE ? IDI_MUTE : IDI_UNMUTE;
+	TraySetIcon(icon);
+	TrayUpdate();
 }
 
 BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
@@ -152,8 +159,10 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-
-	TraySetIcon(IDI_ICON1);
+	if(m_pmicControl->GetMuteState()==MuteBehavior::MUTE)
+		TraySetIcon(IDI_MUTE);
+	else
+		TraySetIcon(IDI_UNMUTE);
 	CString strTrayToolTip;
 	ASSERT(strTrayToolTip.LoadString(IDS_SYSTRAY_TOOLTIP));
 	TraySetToolTip(strTrayToolTip);
@@ -209,7 +218,7 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 	if (frmMicStatusOverlay != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2,  NULL, NULL, NULL);
+		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, WS_THICKFRAME | WS_CAPTION, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");
@@ -217,20 +226,40 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 		frmMicStatusOverlay->SetTitle(L"Mic Status");
 		frmMicStatusOverlay->GetMenu()->Detach();
 		frmMicStatusOverlay->SetMenu(NULL);
+		frmMicStatusOverlay->UpdateMicStatus((BYTE)m_pmicControl->GetMuteState());
 	}
 }
 
-void CGlobalMicControlDlg::ShowOverlayWindow(int nID)
+void CGlobalMicControlDlg::ShowOverlayWindow(int nID=SW_SHOW)
 {
 	if(frmMicStatusOverlay == NULL)
 		CreateOverlayWindow();
 
 	if (frmMicStatusOverlay != NULL &&  frmMicStatusOverlay->IsFrameWnd())
 	{
-		frmMicStatusOverlay->ShowWindow(nID);
+		if (nID == SW_SHOW) {
+			isOverLayVisible = TRUE;
+		}else {
+			isOverLayVisible = FALSE;
+		}
+
 		frmMicStatusOverlay->StayOnTop();
+		frmMicStatusOverlay->ShowWindow(nID);
 		frmMicStatusOverlay->UpdateWindow();
 	}
+}
+
+void CGlobalMicControlDlg::CloseOverlayWindow()
+{
+	TRY
+		if (frmMicStatusOverlay != NULL && frmMicStatusOverlay->m_hWnd!=NULL )
+		{
+			frmMicStatusOverlay->CloseWindow();
+			frmMicStatusOverlay->DestroyWindow();
+		}
+	CATCH_ALL(e)
+		//ignore.
+	END_CATCH_ALL
 }
 
 void CGlobalMicControlDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -263,12 +292,20 @@ void CGlobalMicControlDlg::OnTrayMenuSettings()
 
 void CGlobalMicControlDlg::OnTrayMenuShowOverlay()
 {
-	//AfxMessageBox(L"Here we'll toggle the transparent overlay");
-	ShowOverlayWindow(SW_SHOW);
+	if (isOverLayVisible == FALSE)
+	{
+		ShowOverlayWindow(SW_SHOW);
+		isOverLayVisible = TRUE;
+	}else
+	{
+		ShowOverlayWindow(SW_HIDE);
+		isOverLayVisible = FALSE;
+	}
 }
 
 void CGlobalMicControlDlg::OnTrayMenuExit()
 {
+	CloseOverlayWindow();
 	TrayHide();
 	SendMessage(WM_CLOSE);
 }
@@ -280,8 +317,6 @@ void CGlobalMicControlDlg::OnClose()
 		this->ShowWindow(SW_HIDE);
 	else
 	{
-		if (frmMicStatusOverlay != NULL)
-			frmMicStatusOverlay->CloseWindow();
 		UnregisterHotKey(this->m_hWnd, ID_HOTKEY);
 		CTrayDialog::OnClose();
 	}

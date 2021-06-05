@@ -218,9 +218,7 @@
     <Image Include="baseline_mic_off_black_48dp.ico" />
     <Image Include="baseline_mic_white_48dp.ico" />
     <Image Include="micmute.bmp" />
-    <Image Include="micmute.png" />
     <Image Include="micunmute.bmp" />
-    <Image Include="micunmute.png" />
     <Image Include="res\GlobalMicControl.ico" />
     <Image Include="res\micoff.ico" />
     <Image Include="res\micon.ico" />
