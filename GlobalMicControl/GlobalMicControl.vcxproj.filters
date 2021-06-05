@@ -45,6 +45,9 @@
     <ClInclude Include="TransparentStatic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Layered.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GlobalMicControl.cpp">

@@ -218,7 +218,7 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 	if (frmMicStatusOverlay != NULL)
 	{
 		// create and load the frame with its resources
-		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, WS_THICKFRAME | WS_CAPTION, NULL, NULL);
+		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, NULL, NULL, NULL);
 		if (!ret)   //Create failed.
 		{
 			TRACE(L"Error creating overlay window.");

@@ -186,6 +186,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalMicControl.h" />
     <ClInclude Include="GlobalMicControlDlg.h" />
+    <ClInclude Include="Layered.h" />
     <ClInclude Include="MicControl.h" />
     <ClInclude Include="MicStatusForm.h" />
     <ClInclude Include="pch.h" />

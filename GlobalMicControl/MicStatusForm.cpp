@@ -54,13 +54,13 @@ void CMicStatusForm::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 
 	if (nState == WA_ACTIVE)
 	{
-		MakeTransparent(FALSE);
+		MakeWindowTransparent(FALSE);
 		DrawMicStatus(_micStatus);
 		//UpdateWindow();
 	}
 	else if (nState == WA_INACTIVE)
 	{
-		MakeTransparent(TRUE);
+		MakeWindowTransparent(TRUE);
 
 		/*RECT rect;
 		GetClientRect(&rect);
@@ -75,20 +75,18 @@ void CMicStatusForm::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 	}
 }
 
-void CMicStatusForm::MakeTransparent(BOOL bTransparent)
+void CMicStatusForm::MakeWindowTransparent(BOOL bTransparent)
 {
-	if (bTransparent)
+	if (bTransparent == TRUE)
 	{
-		//_defaultStyle = GetWindowLong(this->m_hWnd, GWL_EXSTYLE);
-		SetWindowLong(this->m_hWnd, _defaultStyle | GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
-		ModifyStyle(WS_CAPTION, 0); // to hide titlebar
-									//ModifyStyleEx(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE, 0);
-		SetLayeredWindowAttributes(0, _alphaChannel, LWA_ALPHA);
+		SetLayered();
+		SetClickThru();
+		MakeTransparent(_alphaChannel);
 	}
 	else {
-		SetWindowLong(this->m_hWnd, GWL_EXSTYLE, _defaultStyle);
-		SetLayeredWindowAttributes(0, 255, LWA_ALPHA);
-		ModifyStyle(0, WS_CAPTION); // to show titlebar
+		RemoveLayered();
+		RemoveClickThru();
+		MakeTransparent(255);
 	}
 }
 
@@ -105,28 +103,23 @@ void CMicStatusForm::DrawMicStatus(BYTE isMuted)
 
 	HBITMAP bitmap = isMuted ==TRUE? LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP2)) : LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP3));
 
-	static bool isCreated = false;
+	/*static bool isCreated = false;
 	if (isCreated)
 	{
 		imgMicStatus.DestroyWindow();
 		isCreated = false;
-	}
+	}*/
 
-	if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
+	imgMicStatus.DestroyWindow();
+
+	if (imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_BITMAP | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
 	//if (!isCreated && imgMicStatus.Create(L"", WS_CHILD | WS_BORDER | WS_VISIBLE | SS_ICON | SS_REALSIZECONTROL | SS_CENTERIMAGE, clientRect, this) == TRUE)
 	{
-		isCreated = true;
 		//HICON micIcon = LoadIcon(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDI_MUTE));
 		//imgMicStatus.SetIcon(micIcon);
 		imgMicStatus.ModifyStyle(WS_BORDER, 0);
 		imgMicStatus.SetBitmap(bitmap);	
 		imgMicStatus.RedrawWindow(&clientRect);
-		imgMicStatus.ShowWindow(SW_SHOW);
-	}
-	else {
-		imgMicStatus.RedrawWindow(&clientRect);
-		/*imgMicStatus.GetWindowRect(&clientRect);
-		imgMicStatus.ScreenToClient(&clientRect);*/
 		imgMicStatus.ShowWindow(SW_SHOW);
 	}
 }
@@ -184,7 +177,7 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-	SetWindowText(L"Mic status");
+	SetWindowText(L"Mic Status");
 
 	_defaultStyle = GetWindowLongW(this->m_hWnd, GWL_EXSTYLE);
 
@@ -240,3 +233,24 @@ void CMicStatusForm::OnShowWindow(BOOL bShow, UINT nStatus)
 	//}
 }
 
+
+
+BOOL CMicStatusForm::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (pMsg->message == WM_MOUSEMOVE && (pMsg->wParam & MK_LBUTTON))
+	{
+		CPoint p = pMsg->pt;
+		ScreenToClient(&p);
+		CRect r(50, 50, 200, 200);
+		if (r.PtInRect(p))
+		{
+			ReleaseCapture();
+			SendMessage(WM_NCLBUTTONDOWN, HTCAPTION, 0);
+			SendMessage(WM_NCLBUTTONUP, HTCAPTION, 0);
+			return 1;
+		}
+	}
+
+	return CFrameWnd::PreTranslateMessage(pMsg);
+}

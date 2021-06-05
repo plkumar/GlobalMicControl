@@ -1,10 +1,10 @@
 #pragma once
 #include "TransparentStatic.h"
-
+#include "Layered.h"
 
 // CMicStatusForm frame
 
-class CMicStatusForm : public CFrameWnd
+class CMicStatusForm : public CFrameWnd, CLayered<CMicStatusForm>
 {
 	DECLARE_DYNCREATE(CMicStatusForm)
 public:
@@ -21,7 +21,7 @@ private:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnClose();
-	void MakeTransparent(BOOL isTransparent);
+	void MakeWindowTransparent(BOOL isTransparent);
 	void DrawMicStatus(BYTE isMuted);
 	void SaveWindowPlacement();
 
@@ -37,6 +37,7 @@ public:
 	void UpdateOpacity(BYTE alpha);
 	void UpdateMicStatus(BYTE status);
 	
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 
