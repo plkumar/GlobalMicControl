@@ -350,7 +350,7 @@ void CGlobalMicControlDlg::OnClose()
 
 void CGlobalMicControlDlg::OnClickedBtnMicToggleReset()
 {
-	hkcMicToggle.SetHotKey('A', HOTKEYF_ALT | HOTKEYF_SHIFT);
+	hkcMicToggle.SetHotKey('M', HOTKEYF_ALT | HOTKEYF_SHIFT);
 }
 
 void CGlobalMicControlDlg::OnBnClickedOk()

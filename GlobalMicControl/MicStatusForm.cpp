@@ -199,12 +199,14 @@ void CMicStatusForm::UpdateMicStatus(BYTE status)
 	{
 		SetWindowText(L"MUTED");
 		SetIcon(m_muteIcon, FALSE);
+		SetIcon(m_muteIcon, TRUE);
 		DrawMicStatus(status);
 	}
 	else if (status == 2) // UNMUTE
 	{
 		SetWindowText(L"UNMUTED");
 		SetIcon(m_unmuteIcon, FALSE);
+		SetIcon(m_unmuteIcon, TRUE);
 		DrawMicStatus(status);
 	}
 	else
