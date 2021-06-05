@@ -57,7 +57,7 @@ END_MESSAGE_MAP()
 CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
 	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pmicControl = new MicControl();
 }
 
@@ -82,6 +82,7 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_ENABLEOVERLAY, chkEnableMicStatus);
 	DDX_Control(pDX, IDC_STATUSOVERLAYGROUP, pnlMicStatusOverlay);
 	DDX_Control(pDX, IDC_ALPHASLIDER, sldrTransparencyAlpha);
+	DDX_Control(pDX, IDC_COMBO_OVERLAYSIZE, comboOverLaySize);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
@@ -191,6 +192,13 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	}
 
 	chkRunAtLogin.SetCheck(AfxGetApp()->GetProfileIntW(L"", L"RunAtLogin", 0));
+
+	for (int i = 50; i <= 400; i += 50)
+	{
+		CString strItem;
+		strItem.Format(L"%dx%d", i,i);
+		comboOverLaySize.AddString(strItem);
+	}
 	
 	/*auto oldStyle = GetWindowLong(picMicrophone.m_hWnd, GWL_STYLE);
 	SetWindowLong(picMicrophone.m_hWnd, GWL_STYLE, oldStyle | SS_REALSIZECONTROL);
@@ -201,8 +209,11 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	auto defaultDevice = m_pmicControl->GetDefaultDeviceName();
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
 
-	if(chkEnableMicStatus.GetCheck()==TRUE)
+	if (chkEnableMicStatus.GetCheck() == TRUE)
+	{
+		TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, TRUE);
 		ShowOverlayWindow(SW_SHOW);
+	}
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -244,7 +255,7 @@ void CGlobalMicControlDlg::ShowOverlayWindow(int nID=SW_SHOW)
 		}else {
 			isOverLayVisible = FALSE;
 		}
-
+		TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, nID == SW_SHOW);
 		frmMicStatusOverlay->StayOnTop();
 		frmMicStatusOverlay->ShowWindow(nID);
 		//frmMicStatusOverlay->UpdateWindow();
@@ -258,7 +269,7 @@ void CGlobalMicControlDlg::CloseOverlayWindow()
 		{
 			//frmMicStatusOverlay->CloseWindow(); // this doesn't seem to trigger OnClose() CMicStatusForm
 			SendMessageA(frmMicStatusOverlay->m_hWnd, WM_CLOSE, NULL, NULL);
-			frmMicStatusOverlay->DestroyWindow();
+			//frmMicStatusOverlay->DestroyWindow();
 		}
 	CATCH_ALL(e)
 		//ignore.

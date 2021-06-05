@@ -181,7 +181,6 @@ BOOL CTrayDialog::TraySetMenu(UINT nResourceID,UINT nDefaultPos)
 	return bSuccess;
 }
 
-
 BOOL CTrayDialog::TraySetMenu(LPCTSTR lpszMenuName,UINT nDefaultPos)
 {
 	BOOL bSuccess;
@@ -189,10 +188,16 @@ BOOL CTrayDialog::TraySetMenu(LPCTSTR lpszMenuName,UINT nDefaultPos)
 	return bSuccess;
 }
 
-BOOL CTrayDialog::TraySetMenu(HMENU hMenu,UINT nDefaultPos)
+BOOL CTrayDialog::TraySetMenuItemChecked(UINT nMenuItemId,BOOL checked)
 {
-	m_mnuTrayMenu.Attach(hMenu);
-	return TRUE;
+
+	UINT result;
+	if(checked==TRUE)
+		result = m_mnuTrayMenu.CheckMenuItem(nMenuItemId, MF_CHECKED);
+	else
+		result = m_mnuTrayMenu.CheckMenuItem(nMenuItemId, MF_UNCHECKED);
+
+	return checked==TRUE? result==MF_UNCHECKED:result==MF_CHECKED;
 }
 
 LRESULT CTrayDialog::OnTrayNotify(WPARAM wParam, LPARAM lParam) 

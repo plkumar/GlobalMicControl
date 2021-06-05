@@ -27,8 +27,8 @@ private:
 
 private:
 	BYTE _alphaChannel = 128; //default to 50% opacity
-	CTransparentStatic imgMicStatus;
-	//CStatic imgMicStatus;
+	//CTransparentStatic imgMicStatus;
+	CStatic imgMicStatus;
 	HICON m_hIcon;
 	HICON m_muteIcon;
 	HICON m_unmuteIcon;
