@@ -76,9 +76,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(Configuration)\$(Platform)\bin\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(Configuration)\$(Platform)\bin\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -183,25 +187,22 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CMicStatusOverlay.h" />
-    <ClInclude Include="COverlayDialog.h" />
-    <ClInclude Include="CustomWindowFrm.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalMicControl.h" />
     <ClInclude Include="GlobalMicControlDlg.h" />
+    <ClInclude Include="Layered.h" />
     <ClInclude Include="MicControl.h" />
+    <ClInclude Include="MicStatusForm.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrayDialog.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CMicStatusOverlay.cpp" />
-    <ClCompile Include="COverlayDialog.cpp" />
-    <ClCompile Include="CustomWindowFrm.cpp" />
     <ClCompile Include="GlobalMicControl.cpp" />
     <ClCompile Include="GlobalMicControlDlg.cpp" />
     <ClCompile Include="MicControl.cpp" />
+    <ClCompile Include="MicStatusForm.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -217,9 +218,13 @@
     <None Include="res\GlobalMicControl.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\favicon.ico" />
+    <Image Include="baseline_mic_off_black_48dp.ico" />
+    <Image Include="baseline_mic_white_48dp.ico" />
+    <Image Include="micmute.bmp" />
+    <Image Include="micunmute.bmp" />
     <Image Include="res\GlobalMicControl.ico" />
-    <Image Include="res\mic_unmu.ico" />
+    <Image Include="res\micoff.ico" />
+    <Image Include="res\micon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="mute.wav" />

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "resource.h"
 #include "MicControl.h"
 #include "windows.h"
 #include "mmdeviceapi.h"
@@ -54,10 +55,10 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 		return;
 	}
 
-	/*const auto muteWav = MAKEINTRESOURCE(IDR_MUTE);
-	const auto unmuteWav = MAKEINTRESOURCE(IDR_UNMUTE);*/
-	const auto muteWav = L"mute.wav";
-	const auto unmuteWav = L"unmute.wav";
+	const auto muteWav = MAKEINTRESOURCE(IDR_MUTE);
+	const auto unmuteWav = MAKEINTRESOURCE(IDR_UNMUTE);
+	//const auto muteWav = L"mute.wav";
+	//const auto unmuteWav = L"unmute.wav";
 	const auto feedbackWav = wasMuted ? unmuteWav : muteWav;
 
 	if (!wasMuted) {
@@ -66,8 +67,8 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 	else {
 		micEndpointVolume->SetMute(FALSE, nullptr);
 	}
-	//PlaySound(feedbackWav, hInst, SND_ASYNC | SND_RESOURCE);
-	PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM |SND_ASYNC | SND_FILENAME);
+	PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM | SND_ASYNC | SND_RESOURCE);
+	//PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM |SND_ASYNC | SND_FILENAME);
 	//PlayResource(L"mute.wav");
 }
 

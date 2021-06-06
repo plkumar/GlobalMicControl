@@ -11,8 +11,9 @@
 #define new DEBUG_NEW
 #endif
 
-
 // CGlobalMicControlApp
+
+#define REG_COMPANY_NAME _T("nZen Technologies")
 
 BEGIN_MESSAGE_MAP(CGlobalMicControlApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -40,15 +41,15 @@ CGlobalMicControlApp theApp;
 
 BOOL CGlobalMicControlApp::InitInstance()
 {
-	// InitCommonControlsEx() is required on Windows XP if an application
-	// manifest specifies use of ComCtl32.dll version 6 or later to enable
-	// visual styles.  Otherwise, any window creation will fail.
-	INITCOMMONCONTROLSEX InitCtrls;
-	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
-	InitCtrls.dwICC = ICC_WIN95_CLASSES;
-	InitCommonControlsEx(&InitCtrls);
+	//// InitCommonControlsEx() is required on Windows XP if an application
+	//// manifest specifies use of ComCtl32.dll version 6 or later to enable
+	//// visual styles.  Otherwise, any window creation will fail.
+	//INITCOMMONCONTROLSEX InitCtrls;
+	//InitCtrls.dwSize = sizeof(InitCtrls);
+	//// Set this to include all the common control classes you want to use
+	//// in your application.
+	//InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	//InitCommonControlsEx(&InitCtrls);
 
 	CWinApp::InitInstance();
 
@@ -60,21 +61,19 @@ BOOL CGlobalMicControlApp::InitInstance()
 
 	AfxEnableControlContainer();
 
-	// Create the shell manager, in case the dialog contains
-	// any shell tree view or shell list view controls.
-	CShellManager *pShellManager = new CShellManager;
+	//// Create the shell manager, in case the dialog contains
+	//// any shell tree view or shell list view controls.
+	//CShellManager *pShellManager = new CShellManager;
 
 	// Activate "Windows Native" visual manager for enabling themes in MFC controls
-	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+	// CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
 	// of your final executable, you should remove from the following
 	// the specific initialization routines you do not need
 	// Change the registry key under which our settings are stored
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(REG_COMPANY_NAME);
 	
 	CGlobalMicControlDlg dlg;
 	m_pMainWnd = &dlg;
@@ -98,14 +97,14 @@ BOOL CGlobalMicControlApp::InitInstance()
 	//Release single instance mutex.
 	ReleaseMutex(hSingleInstanceMutex);
 
-	// Delete the shell manager created above.
-	if (pShellManager != nullptr)
-	{
-		delete pShellManager;
-	}
+	//// Delete the shell manager created above.
+	//if (pShellManager != nullptr)
+	//{
+	//	delete pShellManager;
+	//}
 
 #if !defined(_AFXDLL) && !defined(_AFX_NO_MFC_CONTROLS_IN_DIALOGS)
-	ControlBarCleanUp();
+	//ControlBarCleanUp();
 #endif
 
 	// Since the dialog has been closed, return FALSE so that we exit the

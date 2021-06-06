@@ -30,7 +30,9 @@ public:
 	void TraySetMinimizeToTray(BOOL bMinimizeToTray = TRUE);
 	BOOL TraySetMenu(UINT nResourceID,UINT nDefaultPos=0);	
 	BOOL TraySetMenu(HMENU hMenu,UINT nDefaultPos=0);	
-	BOOL TraySetMenu(LPCTSTR lpszMenuName,UINT nDefaultPos=0);	
+	BOOL TraySetMenu(LPCTSTR lpszMenuName,UINT nDefaultPos=0);
+	BOOL TraySetMenuItemChecked(UINT nMenuItemId, BOOL checked);
+
 	BOOL TrayUpdate();
 	BOOL TrayShow();
 	BOOL TrayHide();

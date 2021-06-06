@@ -8,19 +8,31 @@
 #define IDD_GLOBALMICCONTROL_DIALOG     102
 #define IDS_QUIT                        102
 #define IDS_SYSTRAY_TOOLTIP             103
-#define IDD_COverlayDialog              104
 #define IDR_MAINFRAME                   128
 #define IDR_MENU1                       129
 #define IDR_MUTE                        134
 #define IDR_UNMUTE                      135
-#define IDI_MIC_UNMUTE                  142
 #define IDI_MIC_UNMUTE1                 143
-#define IDI_MIC_MUTE                    143
+#define IDR_MENU2                       149
+#define IDB_BITMAP1                     150
+#define IDI_MUTE                        152
+#define IDI_UNMUTE                      153
+#define IDI_ICON1                       156
+#define IDI_ICON2                       157
+#define IDB_BITMAP2                     165
+#define IDB_BITMAP3                     166
 #define IDC_HOTKEY_MICTOGGLE            1000
 #define IDC_BTN_MICTOGGLE_RESET         1001
 #define IDC_LABEL_SELECTED_DEVICE       1002
 #define IDC_CHECK_RUNATLOGIN            1003
-#define IDC_MICPICTURE                  1004
+#define IDC_MICSTATUSPIC                1005
+#define IDC_MIC_IMAGE                   1006
+#define IDC_CHECK_ENABLEOVERLAY         1007
+#define IDC_STATUSOVERLAYGROUP          1008
+#define IDC_SLIDER2                     1010
+#define IDC_ALPHASLIDER                 1010
+#define IDC_COMBO1                      1011
+#define IDC_COMBO_OVERLAYSIZE           1011
 #define ID_TRAYMENU_ABOUT               32771
 #define ID_TRAYMENU_SETTINGS            32772
 #define ID_TRAYMENU_EXIT                32773
@@ -30,9 +42,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        149
+#define _APS_NEXT_RESOURCE_VALUE        167
 #define _APS_NEXT_COMMAND_VALUE         32775
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           105
 #endif
 #endif
