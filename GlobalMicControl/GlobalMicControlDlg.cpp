@@ -300,7 +300,7 @@ void CGlobalMicControlDlg::CloseOverlayWindow()
 		e->GetErrorMessage(errorMessage, maxSize);
 		TRACE(errorMessage);
 	END_CATCH_ALL
-	isOverLayVisible = FALSE;
+	//isOverLayVisible = FALSE;
 }
 
 void CGlobalMicControlDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -333,7 +333,7 @@ void CGlobalMicControlDlg::OnTrayMenuSettings()
 
 LRESULT CGlobalMicControlDlg::OnOverlayClosing(WPARAM wparam, LPARAM lparam)
 {
-	isOverLayVisible = FALSE;
+	//isOverLayVisible = FALSE;
 	TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, FALSE);
 	return S_OK;
 }
