@@ -42,6 +42,7 @@ protected:
 	void CloseOverlayWindow();
 	void ShowAbout();
 	bool WriteRegStringValueWithKey(const LPTSTR valueName, CString& value, const LPCTSTR keyName) const;
+	bool DeleteRegKey(const LPTSTR valueName, const LPCTSTR keyName) const;
 	CString GetAppFullPath();
 
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
@@ -80,4 +81,7 @@ public:
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	CComboBox comboOverLaySize;
+	CButton chkShowInTaskbar;
+	CStatic lblTransparencyValue;
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };

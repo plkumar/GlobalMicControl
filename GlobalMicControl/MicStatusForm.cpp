@@ -156,6 +156,13 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	//SetWindowText(L"Mic Status");
+	if (AfxGetApp()->GetProfileIntW(L"", REG_SHOWIN_TASKBAR, 1) == 1)
+	{
+		ModifyStyleEx(WS_EX_TOOLWINDOW, WS_EX_APPWINDOW);
+	}
+	else {
+		ModifyStyleEx(WS_EX_APPWINDOW, WS_EX_TOOLWINDOW);
+	}
 
 	delete[] lwp;
 

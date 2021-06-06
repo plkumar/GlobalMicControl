@@ -8,4 +8,5 @@
 #define REG_ENABLEMIC_STATUS L"EnableMicStatus"
 #define REG_ALPHACHANNEL   L"AlphaChannel"
 #define REG_GLOBALMICCONTROL L"GlobalMicControl"
+#define REG_SHOWIN_TASKBAR L"ShowInTaskbar"
 #define UM_MICSTATUS_CLOSING WM_USER+10001

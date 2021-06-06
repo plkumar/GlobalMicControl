@@ -29,10 +29,10 @@
 #define IDC_MIC_IMAGE                   1006
 #define IDC_CHECK_ENABLEOVERLAY         1007
 #define IDC_STATUSOVERLAYGROUP          1008
-#define IDC_SLIDER2                     1010
 #define IDC_ALPHASLIDER                 1010
-#define IDC_COMBO1                      1011
 #define IDC_COMBO_OVERLAYSIZE           1011
+#define IDC_CHECK_SHOWINTASKBAR         1012
+#define IDC_STATIC_TRANSPARENCY         1013
 #define ID_TRAYMENU_ABOUT               32771
 #define ID_TRAYMENU_SETTINGS            32772
 #define ID_TRAYMENU_EXIT                32773
@@ -44,7 +44,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        167
 #define _APS_NEXT_COMMAND_VALUE         32775
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           105
 #endif
 #endif
