@@ -5,7 +5,7 @@
 #endif
 
 #include "targetver.h"
-
+#define _AFX_NO_OLE_SUPPORT
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
 
 // turns off MFC's hiding of some common and often safely ignored warning messages
@@ -26,7 +26,7 @@
 #include <afxcmn.h>             // MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
-#include <afxcontrolbars.h>     // MFC support for ribbons and control bars
+//#include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
 
 

@@ -1,5 +1,4 @@
 #pragma once
-#include "TransparentStatic.h"
 #include "Layered.h"
 
 // CMicStatusForm frame
