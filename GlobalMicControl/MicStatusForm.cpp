@@ -35,12 +35,7 @@ END_MESSAGE_MAP()
 void CMicStatusForm::StayOnTop() const
 {
 	CRect rect;
-
-	// get the current window size and position
 	GetWindowRect(rect);
-
-	// now change the size, position, and Z order 
-	// of the window.
 	::SetWindowPos(m_hWnd,       // handle to window
 		HWND_TOPMOST,  // placement-order handle
 		rect.left,     // horizontal position
@@ -98,7 +93,7 @@ void CMicStatusForm::DrawMicStatus(BYTE isMuted)
 		imgMicStatus.ModifyStyle(WS_BORDER, 0);
 		imgMicStatus.SetBitmap(bitmap);	
 		imgMicStatus.RedrawWindow(&clientRect);
-		imgMicStatus.ShowWindow(SW_SHOW);
+		imgMicStatus.ShowWindow(SW_SHOWNOACTIVATE);
 	}
 }
 

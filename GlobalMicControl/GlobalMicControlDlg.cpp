@@ -104,8 +104,13 @@ void CGlobalMicControlDlg::ToggleMute()
 		m_pmicControl->SetMute(MuteBehavior::MUTE);
 		muteState = MuteBehavior::MUTE;
 	}
-
-	UpdateMuteState(muteState);
+	if (isOverLayVisible)
+	{
+		frmMicStatusOverlay->UpdateMicStatus((BYTE)muteState);
+	}
+	auto icon = (muteState == MuteBehavior::MUTE) ? IDI_MUTE : IDI_UNMUTE;
+	TraySetIcon(icon);
+	TrayUpdate();
 }
 
 void CGlobalMicControlDlg::UpdateMuteState(MuteBehavior mute)
