@@ -2,6 +2,7 @@
 //
 
 #include "pch.h"
+#include "Constants.h"
 #include "GlobalMicControl.h"
 #include "MicStatusForm.h"
 
@@ -58,22 +59,11 @@ void CMicStatusForm::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 	{
 		MakeWindowTransparent(FALSE);
 		DrawMicStatus(_micStatus);
-		//UpdateWindow();
 	}
 	else if (nState == WA_INACTIVE)
 	{
 		MakeWindowTransparent(TRUE);
-
-		/*RECT rect;
-		GetClientRect(&rect);
-		CRgn m_CustomRgn;
-		m_CustomRgn.CreateRoundRectRgn(rect.left,
-			rect.top
-			, rect.right, rect.bottom, 90, 90);
-		VERIFY(SetWindowRgn(m_CustomRgn, TRUE));*/
-
 		DrawMicStatus(_micStatus);
-		//UpdateWindow();
 	}
 }
 
@@ -115,7 +105,10 @@ void CMicStatusForm::DrawMicStatus(BYTE isMuted)
 void CMicStatusForm::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
-	SaveWindowPlacement();
+	//SaveWindowPlacement();
+	if (p_parentController != NULL)
+		SendMessageA(p_parentController->m_hWnd, UM_MICSTATUS_CLOSING, NULL, NULL);
+		//Sen
 	CFrameWnd::OnClose();
 }
 
@@ -162,7 +155,14 @@ int CMicStatusForm::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-	//SetWindowText(L"Mic Status");
+
+	if (AfxGetApp()->GetProfileIntW(L"", REG_SHOWIN_TASKBAR, 1) == 1)
+	{
+		ModifyStyleEx(WS_EX_TOOLWINDOW, WS_EX_APPWINDOW);
+	}
+	else {
+		ModifyStyleEx(WS_EX_APPWINDOW, WS_EX_TOOLWINDOW);
+	}
 
 	delete[] lwp;
 
@@ -273,4 +273,9 @@ void CMicStatusForm::OnExitSizeMove()
 	// TODO: Add your message handler code here and/or call default
 	SaveWindowPlacement();
 	__super::OnExitSizeMove();
+}
+
+void CMicStatusForm::SetParentController(CWnd* parent)
+{
+	this->p_parentController = parent;
 }

@@ -10,15 +10,6 @@
 #include <string>
 #include "MicStatusForm.h"
 
-#define REG_INITIAL_LAUNCH L"InitialLaunch"
-#define REG_OVERLAY_SIZE   L"OverlaySize"
-#define REG_RUNAT_LAUNCH   L"RunAtLogin"
-#define REG_MODIFIER_KEY   L"ModifierKey"
-#define REG_VIRTUAL_KEY    L"VirtualKey"
-#define REG_ENABLEMIC_STATUS L"EnableMicStatus"
-#define REG_ALPHACHANNEL   L"AlphaChannel"
-#define REG_GLOBALMICCONTROL L"GlobalMicControl"
-
 // CGlobalMicControlDlg dialog
 class CGlobalMicControlDlg : public CTrayDialog
 {
@@ -37,7 +28,7 @@ protected:
 
 	void ToggleMute();
 
-	void UpdateMuteState();
+	void UpdateMuteState(MuteBehavior mute);
 
 // Implementation
 protected:
@@ -46,25 +37,26 @@ protected:
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
 	void PopulateSizeDropdown();
-	void CreateOverlayWindow();
-	void ShowOverlayWindow(int nID);
+	BOOL CreateOverlayWindow();
+	void ShowOverlayWindow(int nID, MuteBehavior muteState);
 	void CloseOverlayWindow();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	void ShowAbout();
+	bool WriteRegStringValueWithKey(const LPTSTR valueName, CString& value, const LPCTSTR keyName) const;
+	bool DeleteRegKey(const LPTSTR valueName, const LPCTSTR keyName) const;
+	CString GetAppFullPath();
+
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnTrayMenuAbout();
 	afx_msg void OnTrayMenuSettings();
+	LRESULT OnOverlayClosing(WPARAM wparam, LPARAM lparam);
 	afx_msg void OnTrayMenuShowOverlay();
 	afx_msg void OnTrayMenuExit();
-	DECLARE_MESSAGE_MAP()
-public:
 	afx_msg void OnClose();
 	afx_msg void OnClickedBtnMicToggleReset();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2);
+	DECLARE_MESSAGE_MAP()
 
-	bool WriteRegStringValueWithKey(const LPTSTR valueName, CString& value, const LPCTSTR keyName) const;
-	
-	CString GetAppFullPath();
 
 private:
 	MicControl *m_pmicControl;
@@ -89,4 +81,7 @@ public:
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	CComboBox comboOverLaySize;
+	CButton chkShowInTaskbar;
+	CStatic lblTransparencyValue;
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };

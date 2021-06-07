@@ -4,6 +4,7 @@
 
 #include "pch.h"
 #include "framework.h"
+#include "Constants.h"
 #include "GlobalMicControl.h"
 #include "GlobalMicControlDlg.h"
 #include "afxdialogex.h"
@@ -83,6 +84,8 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATUSOVERLAYGROUP, pnlMicStatusOverlay);
 	DDX_Control(pDX, IDC_ALPHASLIDER, sldrTransparencyAlpha);
 	DDX_Control(pDX, IDC_COMBO_OVERLAYSIZE, comboOverLaySize);
+	DDX_Control(pDX, IDC_CHECK_SHOWINTASKBAR, chkShowInTaskbar);
+	DDX_Control(pDX, IDC_STATIC_TRANSPARENCY, lblTransparencyValue);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
@@ -95,19 +98,21 @@ void CGlobalMicControlDlg::ToggleMute()
 	MuteBehavior muteState = m_pmicControl->GetMuteState();
 	if (muteState == MuteBehavior::MUTE) {
 		m_pmicControl->SetMute(MuteBehavior::UNMUTE);
+		muteState = MuteBehavior::UNMUTE;
 	}
 	else {
 		m_pmicControl->SetMute(MuteBehavior::MUTE);
+		muteState = MuteBehavior::MUTE;
 	}
 
-	UpdateMuteState();
+	UpdateMuteState(muteState);
 }
 
-void CGlobalMicControlDlg::UpdateMuteState()
+void CGlobalMicControlDlg::UpdateMuteState(MuteBehavior mute)
 {
-	MuteBehavior muteState = m_pmicControl->GetMuteState();
-	frmMicStatusOverlay->UpdateMicStatus((BYTE)muteState);
-	auto icon = muteState == MuteBehavior::MUTE ? IDI_MUTE : IDI_UNMUTE;
+	auto icon = mute == MuteBehavior::MUTE ? IDI_MUTE : IDI_UNMUTE;
+	if(isOverLayVisible == TRUE)
+		ShowOverlayWindow(SW_SHOW, mute);
 	TraySetIcon(icon);
 	TrayUpdate();
 }
@@ -119,6 +124,7 @@ BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_COMMAND(ID_TRAYMENU_SETTINGS, OnTrayMenuSettings)
 	ON_COMMAND(ID_TRAYMENU_SHOWOVERLAY, OnTrayMenuShowOverlay)
 	ON_COMMAND(ID_TRAYMENU_EXIT, OnTrayMenuExit)
+	ON_MESSAGE(UM_MICSTATUS_CLOSING, OnOverlayClosing)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDC_BTN_MICTOGGLE_RESET, &CGlobalMicControlDlg::OnClickedBtnMicToggleReset)
 	ON_BN_CLICKED(IDOK, &CGlobalMicControlDlg::OnBnClickedOk)
@@ -127,6 +133,7 @@ BEGIN_MESSAGE_MAP(CGlobalMicControlDlg, CTrayDialog)
 	ON_WM_DESTROY()
 	ON_WM_ACTIVATE()
 	ON_WM_SHOWWINDOW()
+	ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -176,7 +183,12 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	chkEnableMicStatus.SetCheck(AfxGetApp()->GetProfileIntW(L"", REG_ENABLEMIC_STATUS, 0));
 	sldrTransparencyAlpha.SetRange(10, 200, TRUE);
 	sldrTransparencyAlpha.SetPos(AfxGetApp()->GetProfileIntW(L"", REG_ALPHACHANNEL, 128));
+	CString strAlphaValue;
+	strAlphaValue.Format(L"%d", sldrTransparencyAlpha.GetPos());
+	lblTransparencyValue.SetWindowTextW(strAlphaValue);
+	chkShowInTaskbar.SetCheck(AfxGetApp()->GetProfileIntW(L"", REG_SHOWIN_TASKBAR, 1));
 	sldrTransparencyAlpha.EnableWindow(chkEnableMicStatus.GetCheck());
+	
 
 	WORD vk=NULL, modifiers=NULL;
 	vk = AfxGetApp()->GetProfileIntW(L"", REG_VIRTUAL_KEY, 0);
@@ -207,7 +219,7 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	if (chkEnableMicStatus.GetCheck() == TRUE)
 	{
 		TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, TRUE);
-		ShowOverlayWindow(SW_SHOW);
+		ShowOverlayWindow(SW_SHOW, m_pmicControl->GetMuteState());
 	}
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -228,7 +240,7 @@ void CGlobalMicControlDlg::PopulateSizeDropdown()
 	}
 }
 
-void CGlobalMicControlDlg::CreateOverlayWindow()
+BOOL CGlobalMicControlDlg::CreateOverlayWindow()
 {
 	if (frmMicStatusOverlay != NULL && ::IsWindow(frmMicStatusOverlay->m_hWnd))
 	{
@@ -236,41 +248,39 @@ void CGlobalMicControlDlg::CreateOverlayWindow()
 		frmMicStatusOverlay->DestroyWindow();
 		frmMicStatusOverlay = NULL;
 	}
-	//frmMicStatusOverlay = new CMicStatusOverlay();
+
 	_overlaySize = AfxGetApp()->GetProfileIntW(L"", REG_OVERLAY_SIZE, _overlaySize);
+
 	frmMicStatusOverlay = new CMicStatusForm();
 	frmMicStatusOverlay->SetOverlaySize(_overlaySize);
-	if (frmMicStatusOverlay != NULL)
+	auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, NULL, NULL, NULL);
+	if (!ret)   //Create failed.
 	{
-		// create and load the frame with its resources
-		auto ret = frmMicStatusOverlay->LoadFrame(IDR_MENU2, NULL, NULL, NULL);
-		if (!ret)   //Create failed.
-		{
-			TRACE(L"Error creating overlay window.");
-		}
-		frmMicStatusOverlay->SetTitle(L"Mic Status");
-		frmMicStatusOverlay->GetMenu()->Detach();
-		frmMicStatusOverlay->SetMenu(NULL);
-		frmMicStatusOverlay->UpdateMicStatus((BYTE)m_pmicControl->GetMuteState());
+		TRACE(L"Error creating overlay window.");
+		return FALSE;
 	}
+	//frmMicStatusOverlay->SetTitle(L"Mic Status");
+	frmMicStatusOverlay->GetMenu()->Detach();
+	frmMicStatusOverlay->SetMenu(NULL);
+	frmMicStatusOverlay->SetParentController(this); // using default SetParent doesn't show the overlay, as parent is a dialog, hence using custom method 
+													//TODO change this pattern later
+	return TRUE;
+
 }
 
-void CGlobalMicControlDlg::ShowOverlayWindow(int nID=SW_SHOW)
+void CGlobalMicControlDlg::ShowOverlayWindow(int nID, MuteBehavior muteState)
 {
 	if(frmMicStatusOverlay == NULL || !::IsWindow(frmMicStatusOverlay->m_hWnd))
 		CreateOverlayWindow();
 
 	if (frmMicStatusOverlay != NULL && ::IsWindow(frmMicStatusOverlay->m_hWnd))
 	{
-		if (nID == SW_SHOW) {
-			isOverLayVisible = TRUE;
-		}else {
-			isOverLayVisible = FALSE;
-		}
 		TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, nID == SW_SHOW);
 		frmMicStatusOverlay->StayOnTop();
 		frmMicStatusOverlay->ShowWindow(nID);
-		//frmMicStatusOverlay->UpdateWindow();
+		frmMicStatusOverlay->UpdateMicStatus((BYTE)muteState);
+		frmMicStatusOverlay->UpdateWindow();
+		isOverLayVisible = TRUE;
 	}
 }
 
@@ -281,11 +291,16 @@ void CGlobalMicControlDlg::CloseOverlayWindow()
 		{
 			//frmMicStatusOverlay->CloseWindow(); // this doesn't seem to trigger OnClose() CMicStatusForm
 			SendMessageA(frmMicStatusOverlay->m_hWnd, WM_CLOSE, NULL, NULL);
-			//frmMicStatusOverlay->DestroyWindow();
+			frmMicStatusOverlay = NULL;
 		}
 	CATCH_ALL(e)
 		//ignore.
+		LPTSTR errorMessage;
+		int maxSize;
+		e->GetErrorMessage(errorMessage, maxSize);
+		TRACE(errorMessage);
 	END_CATCH_ALL
+	//isOverLayVisible = FALSE;
 }
 
 void CGlobalMicControlDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -316,15 +331,25 @@ void CGlobalMicControlDlg::OnTrayMenuSettings()
 	this->ShowWindow(SW_SHOW);
 }
 
+LRESULT CGlobalMicControlDlg::OnOverlayClosing(WPARAM wparam, LPARAM lparam)
+{
+	//isOverLayVisible = FALSE;
+	TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, FALSE);
+	return S_OK;
+}
+
+
 void CGlobalMicControlDlg::OnTrayMenuShowOverlay()
 {
+	CloseOverlayWindow();
+	auto micSate = m_pmicControl->GetMuteState();
 	if (isOverLayVisible == FALSE)
 	{
-		ShowOverlayWindow(SW_SHOW);
+		ShowOverlayWindow(SW_SHOW, micSate);
 		isOverLayVisible = TRUE;
 	}else
 	{
-		ShowOverlayWindow(SW_HIDE);
+		ShowOverlayWindow(SW_HIDE, micSate);
 		isOverLayVisible = FALSE;
 	}
 }
@@ -372,6 +397,9 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 		{
 			WriteRegStringValueWithKey(REG_GLOBALMICCONTROL, GetAppFullPath(), keyRunAtLogin);
 		}
+		else {
+			DeleteRegKey(REG_GLOBALMICCONTROL, keyRunAtLogin);
+		}
 		this->ShowWindow(SW_HIDE);
 	}
 
@@ -384,6 +412,8 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 	selectedItem = selectedItem.Left(xpos);
 	_overlaySize = std::stoi({ selectedItem.GetString(), static_cast<size_t>(selectedItem.GetLength()) });
 	AfxGetApp()->WriteProfileInt(L"", REG_OVERLAY_SIZE, _overlaySize);
+
+	AfxGetApp()->WriteProfileInt(L"", REG_SHOWIN_TASKBAR, chkShowInTaskbar.GetCheck());
 
 	if(frmMicStatusOverlay!=NULL && frmMicStatusOverlay->IsWindowVisible())
 		frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
@@ -417,6 +447,22 @@ bool CGlobalMicControlDlg::WriteRegStringValueWithKey(const LPTSTR valueName, CS
 	return false;
 }
 
+bool CGlobalMicControlDlg::DeleteRegKey(const LPTSTR valueName, const LPCTSTR keyName) const
+{
+	ATL::CRegKey regKey;
+	if (ERROR_SUCCESS != regKey.Open(key_, keyName, KEY_WRITE )) {
+		if (ERROR_SUCCESS != regKey.Create(key_, keyName))
+		{
+			regKey.Close();
+			return false;
+		}
+	}
+
+	return (ERROR_SUCCESS == regKey.DeleteValue(valueName) && regKey.Close() == ERROR_SUCCESS);
+	return false;
+}
+
+
 CString CGlobalMicControlDlg::GetAppFullPath()
 {
 	CString executableName = AfxGetApp()->m_pszExeName; // Get the "GlobalMicControl" portion executable.
@@ -449,17 +495,6 @@ void CGlobalMicControlDlg::OnDestroy()
 void CGlobalMicControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
 	CTrayDialog::OnActivate(nState, pWndOther, bMinimized);
-
-	// TODO: Add your message handler code here
-	//if (nState== WA_ACTIVE)
-	//{
-	//	static bool isFirstActivation = true;
-	//	if (isFirstActivation) {
-	//		isFirstActivation = false;
-	//		::PostMessage(this->GetSafeHwnd(), WM_COMMAND, IDOK, 0); //end dialog with idok
-	//		//::PostMessage(this->GetSafeHwnd(), WM_CLOSE, 0, 0); //or, close dialog
-	//	}
-	//}
 }
 
 
@@ -482,3 +517,18 @@ void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 	}
 }
 
+
+
+void CGlobalMicControlDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	if (IDC_ALPHASLIDER == pScrollBar->GetDlgCtrlID())
+	{
+		CString strAlphaValue; 
+		strAlphaValue.Format(L"%d",sldrTransparencyAlpha.GetPos());
+		lblTransparencyValue.SetWindowTextW(strAlphaValue);
+	}
+
+	CTrayDialog::OnHScroll(nSBCode, nPos, pScrollBar);
+}

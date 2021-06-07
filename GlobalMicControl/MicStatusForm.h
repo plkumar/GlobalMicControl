@@ -35,6 +35,7 @@ private:
 	BYTE _micStatus;
 	int _windowWidth=200;
 	int _windowHeight=200;
+	CWnd* p_parentController;
 public:
 	void UpdateOpacity(BYTE alpha);
 	void UpdateMicStatus(BYTE status);
@@ -42,6 +43,7 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnDestroy();
 	afx_msg void OnExitSizeMove();
+	void SetParentController(CWnd* parent);
 };
 
 
