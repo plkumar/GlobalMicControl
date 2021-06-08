@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "MMNotificationClient.h"
 
-CMMNotificationClient::CMMNotificationClient() : _pEnum(NULL), _cRef(1)
+CMMNotificationClient::CMMNotificationClient() : _pDeviceEnumerator(NULL), _cRef(1)
 {
     // Register for audio device change notifications from Windows
     if (SUCCEEDED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED)))
@@ -11,9 +11,9 @@ CMMNotificationClient::CMMNotificationClient() : _pEnum(NULL), _cRef(1)
         HRESULT hr = CoCreateInstance(
             CLSID_MMDeviceEnumerator, NULL,
             CLSCTX_ALL, IID_IMMDeviceEnumerator,
-            (void**)&_pEnum);
-        if (SUCCEEDED(hr) && _pEnum)
-            _pEnum->RegisterEndpointNotificationCallback(this);
+            (void**)&_pDeviceEnumerator);
+        if (SUCCEEDED(hr) && _pDeviceEnumerator)
+            _pDeviceEnumerator->RegisterEndpointNotificationCallback(this);
     }
 }
 
@@ -50,10 +50,10 @@ HRESULT __stdcall CMMNotificationClient::OnPropertyValueChanged(LPCWSTR pwstrDev
 CMMNotificationClient::~CMMNotificationClient()
 {
     // Stop receiving audio device notifications
-    if (_pEnum)
+    if (_pDeviceEnumerator)
     {
-        _pEnum->UnregisterEndpointNotificationCallback(this);
-        _pEnum->Release();
+        _pDeviceEnumerator->UnregisterEndpointNotificationCallback(this);
+        _pDeviceEnumerator->Release();
     }
 }
 

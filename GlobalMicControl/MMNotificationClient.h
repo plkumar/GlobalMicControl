@@ -24,7 +24,7 @@ public:
 		const PROPERTYKEY key);
 private:
 	ULONG _cRef;
-	IMMDeviceEnumerator* _pEnum;
+	IMMDeviceEnumerator* _pDeviceEnumerator;
 
 };
 
