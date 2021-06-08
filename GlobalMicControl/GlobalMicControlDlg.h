@@ -9,9 +9,10 @@
 #include "MicControl.h"
 #include <string>
 #include "MicStatusForm.h"
+#include "MMNotificationClient.h"
 
 // CGlobalMicControlDlg dialog
-class CGlobalMicControlDlg : public CTrayDialog
+class CGlobalMicControlDlg : public CTrayDialog, CMMNotificationClient
 {
 // Construction
 public:
@@ -68,6 +69,7 @@ private:
 	CMicStatusForm* frmMicStatusOverlay;
 	BOOL isOverLayVisible = FALSE;
 	int _overlaySize = 100;
+	ULONG m_refcount;
 public:
 	CHotKeyCtrl hkcMicToggle;
 	CStatic lblSelectedDevice;
@@ -76,12 +78,13 @@ public:
 	CButton chkEnableMicStatus;
 	CStatic pnlMicStatusOverlay;
 	CSliderCtrl sldrTransparencyAlpha;
+	CComboBox comboOverLaySize;
+	CButton chkShowInTaskbar;
+	CStatic lblTransparencyValue;
+
 	afx_msg void OnClickedCheckEnableOverlay();
 	afx_msg void OnDestroy();
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
-	CComboBox comboOverLaySize;
-	CButton chkShowInTaskbar;
-	CStatic lblTransparencyValue;
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };

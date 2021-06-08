@@ -18,8 +18,9 @@ public:
 	~MicControl();
 	void SetMute(MuteBehavior newMuteState);
 	MuteBehavior GetMuteState();
-
 	CString GetDefaultDeviceName();
+	HRESULT RegisterNotificationCallback(IMMNotificationClient* pClient);
+	HRESULT UnRegisterNotificationCallback(IMMNotificationClient* pClient);
 
 private:
 	// Global Variables:

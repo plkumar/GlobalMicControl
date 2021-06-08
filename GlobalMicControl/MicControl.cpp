@@ -33,6 +33,8 @@ MicControl::MicControl()
 
 MicControl::~MicControl()
 {
+	micEndpointVolume->Release();
+	deviceEnumerator->Release();
 	free(micEndpointVolume);
 	free(deviceEnumerator);
 	micEndpointVolume=NULL;
@@ -55,11 +57,7 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 		return;
 	}
 
-	const auto muteWav = MAKEINTRESOURCE(IDR_MUTE);
-	const auto unmuteWav = MAKEINTRESOURCE(IDR_UNMUTE);
-	//const auto muteWav = L"mute.wav";
-	//const auto unmuteWav = L"unmute.wav";
-	const auto feedbackWav = wasMuted ? unmuteWav : muteWav;
+	const auto feedbackWav = wasMuted ? MAKEINTRESOURCE(IDR_UNMUTE) : MAKEINTRESOURCE(IDR_MUTE);
 
 	if (!wasMuted) {
 		micEndpointVolume->SetMute(TRUE, nullptr);
@@ -68,8 +66,6 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 		micEndpointVolume->SetMute(FALSE, nullptr);
 	}
 	PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM | SND_ASYNC | SND_RESOURCE);
-	//PlaySound(feedbackWav, AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_SYSTEM |SND_ASYNC | SND_FILENAME);
-	//PlayResource(L"mute.wav");
 }
 
 MuteBehavior MicControl::GetMuteState()
@@ -118,37 +114,33 @@ CString MicControl::GetDefaultDeviceName()
 
 BOOL MicControl::PlayResource(LPCWSTR lpName)
 {
-	//BOOL bRtn;
-	//LPSTR lpRes;
-	//HRSRC hResInfo;
-	//HGLOBAL hRes;
-
-	//// Find the WAVE resource. 
-
-	//hResInfo = FindResource(AfxGetStaticModuleState()->m_hCurrentInstanceHandle, lpName, L"WAVE");
-	//if (hResInfo == NULL)
-	//	return FALSE;
-
-	//// Load the WAVE resource. 
-
-	//hRes = LoadResource(AfxGetStaticModuleState()->m_hCurrentInstanceHandle, hResInfo);
-	//if (hRes == NULL)
-	//	return FALSE;
-
-	//// Lock the WAVE resource and play it. 
-
-	//lpRes = (LPSTR) LockResource(hRes);
-	//if (lpRes != NULL) {
-	//	//bRtn = sndPlaySound(lpRes, SND_MEMORY | SND_SYNC |
-	//	PlaySound(CString(lpRes), AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_RESOURCE | SND_ASYNC | SND_NODEFAULT);
-	//	UnlockResource(hRes);
-	//}
-	//else
-	//	bRtn = 0;
-
-	//// Free the WAVE resource and return success or failure. 
-
-	//FreeResource(hRes);
-	//return bRtn;
+	// TODO implement the playsound from resource
 	return FALSE;
+}
+
+
+HRESULT MicControl::RegisterNotificationCallback(IMMNotificationClient* pClient) {
+	HRESULT hr = S_OK;
+
+	// get the default render endpoint
+	hr = deviceEnumerator->RegisterEndpointNotificationCallback(pClient);
+	
+	if (FAILED(hr)) {
+		TRACE("IMMDeviceEnumerator::RegisterEndpointNotificationCallback failed: hr = 0xx\n", hr);
+		return hr;
+	}
+	return S_OK;
+}
+
+HRESULT MicControl::UnRegisterNotificationCallback(IMMNotificationClient* pClient) {
+	HRESULT hr = S_OK;
+
+	// get the default render endpoint
+	hr = deviceEnumerator->UnregisterEndpointNotificationCallback(pClient);
+
+	if (FAILED(hr)) {
+		TRACE("IMMDeviceEnumerator::UnregisterEndpointNotificationCallback failed: hr = 0xx\n", hr);
+		return hr;
+	}
+	return hr;
 }

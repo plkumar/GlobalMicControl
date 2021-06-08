@@ -5,12 +5,12 @@ class CMMNotificationClient :
     public IMMNotificationClient
 {
 public:
-	CMMNotificationClient(IMMDeviceEnumerator* _pEnum);
+	CMMNotificationClient();
 	virtual ~CMMNotificationClient();
-	/*ULONG STDMETHODCALLTYPE AddRef();
+	ULONG STDMETHODCALLTYPE AddRef();
 	ULONG STDMETHODCALLTYPE Release();
 	HRESULT STDMETHODCALLTYPE QueryInterface(
-		REFIID riid, VOID** ppvInterface);*/
+		REFIID riid, VOID** ppvInterface);
 	HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(
 		EDataFlow flow, ERole role,
 		LPCWSTR pwstrDeviceId);
@@ -23,7 +23,7 @@ public:
 		LPCWSTR pwstrDeviceId,
 		const PROPERTYKEY key);
 private:
-	LONG _cRef;
+	ULONG _cRef;
 	IMMDeviceEnumerator* _pEnum;
 
 };

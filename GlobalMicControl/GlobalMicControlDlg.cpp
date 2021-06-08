@@ -56,10 +56,11 @@ END_MESSAGE_MAP()
 // CGlobalMicControlDlg dialog
 
 CGlobalMicControlDlg::CGlobalMicControlDlg(CWnd* pParent /*=nullptr*/)
-	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent)
+	: CTrayDialog(IDD_GLOBALMICCONTROL_DIALOG, pParent), CMMNotificationClient()
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pmicControl = new MicControl();
+	m_pmicControl->RegisterNotificationCallback(this);
 }
 
 CGlobalMicControlDlg::~CGlobalMicControlDlg()
@@ -368,11 +369,11 @@ void CGlobalMicControlDlg::OnTrayMenuExit()
 
 void CGlobalMicControlDlg::OnClose()
 {
-	// TODO: Add your message handler code here and/or call default
 	if (TrayIsVisible())
 		this->ShowWindow(SW_HIDE);
 	else
 	{
+		m_pmicControl->UnRegisterNotificationCallback(this);
 		UnregisterHotKey(this->m_hWnd, ID_HOTKEY);
 		CTrayDialog::OnClose();
 	}
@@ -430,7 +431,6 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 void CGlobalMicControlDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 {
 	if (nHotKeyId == ID_HOTKEY) {
-		//AfxMessageBox(L"hotkey pressed.");
 		ToggleMute();
 	}
 	else
@@ -486,7 +486,6 @@ void CGlobalMicControlDlg::OnClickedCheckEnableOverlay()
 	sldrTransparencyAlpha.EnableWindow(chkEnableMicStatus.GetCheck());
 }
 
-
 void CGlobalMicControlDlg::OnDestroy()
 {
 	TrayHide();
@@ -496,12 +495,10 @@ void CGlobalMicControlDlg::OnDestroy()
 	// TODO: Add your message handler code here
 }
 
-
 void CGlobalMicControlDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
 	CTrayDialog::OnActivate(nState, pWndOther, bMinimized);
 }
-
 
 void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 {
@@ -521,8 +518,6 @@ void CGlobalMicControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 		AfxGetApp()->WriteProfileInt(L"", REG_INITIAL_LAUNCH, FALSE);
 	}
 }
-
-
 
 void CGlobalMicControlDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
