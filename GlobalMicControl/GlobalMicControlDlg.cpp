@@ -225,6 +225,9 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 
 	PopulateAudioInputDevices();
 
+	CString selectedDeviceId = AfxGetApp()->GetProfileStringW(L"", REG_AUDIO_ENDPOINT, L"");
+	m_pmicControl->SetSelectedDevice(selectedDeviceId);
+
 	if (chkEnableMicStatus.GetCheck() == TRUE)
 	{
 		TraySetMenuItemChecked(ID_TRAYMENU_SHOWOVERLAY, TRUE);
@@ -240,7 +243,7 @@ void CGlobalMicControlDlg::PopulateAudioInputDevices()
 
 	m_pmicControl->GetDevices(deviceList);
 	CString selectedDeviceId = AfxGetApp()->GetProfileStringW(L"", REG_AUDIO_ENDPOINT, L"");
-
+	
 	std::set<DeviceIdNameMap>::iterator _devIterator = deviceList->begin();
 	while (_devIterator != deviceList->end())
 	{
@@ -248,9 +251,8 @@ void CGlobalMicControlDlg::PopulateAudioInputDevices()
 		if (selectedDeviceId.IsEmpty() && _devIterator->second == m_pmicControl->GetDefaultDevice().second) {
 			comboDeviceList.SelectString(0, _devIterator->second);
 		}
-		else if (_devIterator->second == selectedDeviceId) {
+		else if (_devIterator->first == selectedDeviceId) {
 			comboDeviceList.SelectString(0, _devIterator->second);
-			m_pmicControl->SetSelectedDevice(_devIterator->first);
 		}
 		_devIterator++;
 	}
@@ -452,10 +454,20 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 
 	comboDeviceList.GetLBText(comboDeviceList.GetCurSel(), selectedDevice);
 	if (!selectedDevice.IsEmpty()) {
-		AfxGetApp()->WriteProfileStringW(L"", REG_AUDIO_ENDPOINT, selectedDevice);
-	}
+		
+		std::set<DeviceIdNameMap>* deviceList= new std::set<DeviceIdNameMap>();
 
-	//CTrayDialog::OnOK();
+		m_pmicControl->GetDevices(deviceList);
+
+		std::set<DeviceIdNameMap>::iterator _devIterator = deviceList->begin();
+		while (_devIterator != deviceList->end())
+		{
+			if (_devIterator->second == selectedDevice) {
+				AfxGetApp()->WriteProfileStringW(L"", REG_AUDIO_ENDPOINT, _devIterator->first);
+			}
+			_devIterator++;
+		}
+	}
 }
 
 
