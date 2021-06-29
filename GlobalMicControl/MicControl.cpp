@@ -5,6 +5,7 @@
 #include "mmdeviceapi.h"
 #include "mmsystem.h"
 #include "endpointvolume.h"
+#include <set>
 
 namespace {
 	const auto MUTE_KEY = VK_F15;
@@ -13,7 +14,7 @@ namespace {
 	const unsigned int PTT_RELEASE_DELAY_MS = 250;
 };
 
-MicControl::MicControl()
+MicControl::MicControl():selectedDevice(NULL)
 {
 	if (FAILED(CoInitializeEx(NULL, COINIT_MULTITHREADED)))
 	{
@@ -39,11 +40,68 @@ MicControl::~MicControl()
 	deviceEnumerator=NULL;
 }
 
+HRESULT MicControl::GetDevices(std::set<DeviceIdNameMap>* deviceList)
+{
+	
+	IMMDeviceCollection* deviceCollection;
+	deviceEnumerator->EnumAudioEndpoints(EDataFlow::eCapture, ERole::eMultimedia, &deviceCollection);
+
+	UINT deviceCount = 0;
+	deviceCollection->GetCount(&deviceCount);
+
+	IPropertyStore* pProps = NULL;
+	LPWSTR pwszID = NULL;
+	
+	GUID IDevice_FriendlyName = { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } };
+	static PROPERTYKEY key;
+	key.pid = 14;
+	key.fmtid = IDevice_FriendlyName;
+
+	for (UINT i=0; i<deviceCount; i++)
+	{
+		IMMDevice* micDevicePtr;
+		deviceCollection->Item(i, &micDevicePtr);
+		LPWSTR lDeviceId;
+		micDevicePtr->GetId(&lDeviceId);
+		auto hr = micDevicePtr->OpenPropertyStore(
+			STGM_READ, &pProps);
+
+		if (hr != S_OK) {
+			return S_FALSE;
+		}
+
+		PROPVARIANT varName;
+		// Initialize container for property value.
+		PropVariantInit(&varName);
+		//pProps.
+		// Get the endpoint's friendly-name property.
+		hr = pProps->GetValue(key, &varName);
+
+		if (hr != S_OK) {
+			return S_FALSE;
+		}
+		CString deviceName = varName.pwszVal;
+		deviceList->insert(std::make_pair(CString(lDeviceId),deviceName));
+		PropVariantClear(&varName);
+	}
+
+	return S_OK;
+}
+
 void MicControl::SetMute(MuteBehavior newMuteState)
 {
 
+	/*IMMDevice* micDevicePtr;
+	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);*/
+
 	IMMDevice* micDevicePtr;
-	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	if (selectedDevice == NULL)
+	{
+		deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	}
+	else {
+		micDevicePtr = selectedDevice;
+	}
 
 	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micEndpointVolume);
 	BOOL wasMuted;
@@ -75,7 +133,13 @@ void MicControl::SetMute(MuteBehavior newMuteState)
 MuteBehavior MicControl::GetMuteState()
 {
 	IMMDevice* micDevicePtr;
-	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	if (selectedDevice == NULL)
+	{
+		deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+	}
+	else {
+		micDevicePtr = selectedDevice;
+	}
 
 	micDevicePtr->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, nullptr, (void**)&micEndpointVolume);
 	BOOL wasMuted;
@@ -83,18 +147,79 @@ MuteBehavior MicControl::GetMuteState()
 	return wasMuted == TRUE ? MuteBehavior::MUTE : MuteBehavior::UNMUTE;
 }
 
-CString MicControl::GetDefaultDeviceName()
+HRESULT MicControl::SetSelectedDevice(CString deviceId)
 {
+	IMMDeviceCollection* deviceCollection;
+	deviceEnumerator->EnumAudioEndpoints(EDataFlow::eCapture, ERole::eMultimedia, &deviceCollection);
+
+	UINT deviceCount = 0;
+	deviceCollection->GetCount(&deviceCount);	
+
+	if (deviceCount == 0) return E_FAIL;
+
+	for (UINT i = 0; i < deviceCount; i++)
+	{
+		IMMDevice* micDevicePtr;
+		deviceCollection->Item(i, &micDevicePtr);
+		LPWSTR lDeviceId;
+		if (micDevicePtr->GetId(&lDeviceId) == S_OK && lDeviceId == deviceId)
+		{
+			this->selectedDevice = micDevicePtr;
+		}
+	}
+
+	return S_OK;
+}
+
+//CString MicControl::GetDefaultDeviceName()
+//{
+//	IMMDevice* micDevicePtr;
+//	IPropertyStore* pProps = NULL;
+//	LPWSTR pwszID = NULL;
+//	
+//	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+//
+//	auto hr = micDevicePtr->OpenPropertyStore(
+//		STGM_READ, &pProps);
+//	
+//	if (hr != S_OK) return NULL;
+//
+//	static PROPERTYKEY key;
+//
+//	GUID IDevice_FriendlyName = { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } };
+//	key.pid = 14;
+//	key.fmtid = IDevice_FriendlyName;
+//	PROPVARIANT varName;
+//
+//	// Initialize container for property value.
+//	PropVariantInit(&varName);
+//	//pProps.
+//	// Get the endpoint's friendly-name property.
+//	hr = pProps->GetValue(key, &varName);
+//	
+//	if (hr != S_OK) return NULL;
+//	CString deviceName = varName.pwszVal;
+//	PropVariantClear(&varName);
+//
+//	return deviceName;
+//}
+
+DeviceIdNameMap MicControl::GetDefaultDevice()
+{
+	DeviceIdNameMap defaultDevice = DeviceIdNameMap();
 	IMMDevice* micDevicePtr;
 	IPropertyStore* pProps = NULL;
 	LPWSTR pwszID = NULL;
-	
+
 	deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eCapture, ERole::eCommunications, &micDevicePtr);
+
+	micDevicePtr->GetId(&pwszID);
+	defaultDevice.first = pwszID;
 
 	auto hr = micDevicePtr->OpenPropertyStore(
 		STGM_READ, &pProps);
-	
-	if (hr != S_OK) return NULL;
+
+	if (hr != S_OK) return defaultDevice;
 
 	static PROPERTYKEY key;
 
@@ -108,47 +233,11 @@ CString MicControl::GetDefaultDeviceName()
 	//pProps.
 	// Get the endpoint's friendly-name property.
 	hr = pProps->GetValue(key, &varName);
-	
-	if (hr != S_OK) return NULL;
-	CString deviceName = varName.pwszVal;
+
+	if (hr != S_OK) return defaultDevice;
+
+	defaultDevice.second = varName.pwszVal;
 	PropVariantClear(&varName);
-
-	return deviceName;
-}
-
-BOOL MicControl::PlayResource(LPCWSTR lpName)
-{
-	//BOOL bRtn;
-	//LPSTR lpRes;
-	//HRSRC hResInfo;
-	//HGLOBAL hRes;
-
-	//// Find the WAVE resource. 
-
-	//hResInfo = FindResource(AfxGetStaticModuleState()->m_hCurrentInstanceHandle, lpName, L"WAVE");
-	//if (hResInfo == NULL)
-	//	return FALSE;
-
-	//// Load the WAVE resource. 
-
-	//hRes = LoadResource(AfxGetStaticModuleState()->m_hCurrentInstanceHandle, hResInfo);
-	//if (hRes == NULL)
-	//	return FALSE;
-
-	//// Lock the WAVE resource and play it. 
-
-	//lpRes = (LPSTR) LockResource(hRes);
-	//if (lpRes != NULL) {
-	//	//bRtn = sndPlaySound(lpRes, SND_MEMORY | SND_SYNC |
-	//	PlaySound(CString(lpRes), AfxGetStaticModuleState()->m_hCurrentInstanceHandle, SND_RESOURCE | SND_ASYNC | SND_NODEFAULT);
-	//	UnlockResource(hRes);
-	//}
-	//else
-	//	bRtn = 0;
-
-	//// Free the WAVE resource and return success or failure. 
-
-	//FreeResource(hRes);
-	//return bRtn;
-	return FALSE;
+	
+	return defaultDevice;
 }

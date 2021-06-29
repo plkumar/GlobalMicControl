@@ -9,4 +9,5 @@
 #define REG_ALPHACHANNEL   L"AlphaChannel"
 #define REG_GLOBALMICCONTROL L"GlobalMicControl"
 #define REG_SHOWIN_TASKBAR L"ShowInTaskbar"
+#define REG_AUDIO_ENDPOINT L"AudioEndpoint"
 #define UM_MICSTATUS_CLOSING WM_USER+10001

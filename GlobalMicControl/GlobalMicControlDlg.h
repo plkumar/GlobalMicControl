@@ -36,6 +36,7 @@ protected:
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
+	void PopulateAudioInputDevices();
 	void PopulateSizeDropdown();
 	BOOL CreateOverlayWindow();
 	void ShowOverlayWindow(int nID, MuteBehavior muteState);
@@ -84,4 +85,5 @@ public:
 	CButton chkShowInTaskbar;
 	CStatic lblTransparencyValue;
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	CComboBox comboDeviceList;
 };

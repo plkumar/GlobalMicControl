@@ -13,6 +13,7 @@
 #define new DEBUG_NEW
 #endif
 #include <string>
+#include <set>
 
 // Message from the Systray Icon
 #define MYWM_NOTIFYICON		(WM_USER+2)
@@ -86,6 +87,7 @@ void CGlobalMicControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_OVERLAYSIZE, comboOverLaySize);
 	DDX_Control(pDX, IDC_CHECK_SHOWINTASKBAR, chkShowInTaskbar);
 	DDX_Control(pDX, IDC_STATIC_TRANSPARENCY, lblTransparencyValue);
+	DDX_Control(pDX, IDC_COMBO_DEVICELIST, comboDeviceList);
 }
 
 void CGlobalMicControlDlg::OnTrayLButtonDown(CPoint pt)
@@ -218,8 +220,10 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	HBITMAP bitmap = LoadBitmap(AfxGetApp()->m_hInstance, MAKEINTRESOURCE(IDB_BITMAP1));
 	picMicrophone.SetBitmap(bitmap);*/
 
-	auto defaultDevice = m_pmicControl->GetDefaultDeviceName();
+	auto defaultDevice = m_pmicControl->GetDefaultDevice().second;
 	lblSelectedDevice.SetWindowTextW(defaultDevice);
+
+	PopulateAudioInputDevices();
 
 	if (chkEnableMicStatus.GetCheck() == TRUE)
 	{
@@ -228,6 +232,28 @@ BOOL CGlobalMicControlDlg::OnInitDialog()
 	}
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void CGlobalMicControlDlg::PopulateAudioInputDevices()
+{
+	std::set<DeviceIdNameMap>* deviceList = new std::set<DeviceIdNameMap>();
+
+	m_pmicControl->GetDevices(deviceList);
+	CString selectedDeviceId = AfxGetApp()->GetProfileStringW(L"", REG_AUDIO_ENDPOINT, L"");
+
+	std::set<DeviceIdNameMap>::iterator _devIterator = deviceList->begin();
+	while (_devIterator != deviceList->end())
+	{
+		comboDeviceList.AddString(_devIterator->second);
+		if (selectedDeviceId.IsEmpty() && _devIterator->second == m_pmicControl->GetDefaultDevice().second) {
+			comboDeviceList.SelectString(0, _devIterator->second);
+		}
+		else if (_devIterator->second == selectedDeviceId) {
+			comboDeviceList.SelectString(0, _devIterator->second);
+			m_pmicControl->SetSelectedDevice(_devIterator->first);
+		}
+		_devIterator++;
+	}
 }
 
 void CGlobalMicControlDlg::PopulateSizeDropdown()
@@ -422,6 +448,12 @@ void CGlobalMicControlDlg::OnBnClickedOk()
 
 	if(frmMicStatusOverlay!=NULL && frmMicStatusOverlay->IsWindowVisible())
 		frmMicStatusOverlay->UpdateOpacity(sldrTransparencyAlpha.GetPos());
+	CString selectedDevice;
+
+	comboDeviceList.GetLBText(comboDeviceList.GetCurSel(), selectedDevice);
+	if (!selectedDevice.IsEmpty()) {
+		AfxGetApp()->WriteProfileStringW(L"", REG_AUDIO_ENDPOINT, selectedDevice);
+	}
 
 	//CTrayDialog::OnOK();
 }
